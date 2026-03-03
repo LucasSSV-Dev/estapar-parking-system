@@ -1,7 +1,10 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.domain.model;
 
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,13 +26,14 @@ public class ParkingEvent {
     @Column(name = "license_plate", nullable = false)
     private String licensePlate;
 
-    @Column(name = "event_type", nullable = false) //Vou usar o Enum só no DTO.
-    private String eventType;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "event_type", nullable = false)
+    private EventType type;
 
     @Column(name = "entry_time", nullable = false) //Hora que o carro entrou
     private LocalDateTime entryTime;
 
-    @Column
+    @Column(name = "entry_time")
     private LocalDateTime exitTime; //Retirada do carro... Vou guardar pra fazer um histórico se pá
 
     @Column(name = "sector_id")
