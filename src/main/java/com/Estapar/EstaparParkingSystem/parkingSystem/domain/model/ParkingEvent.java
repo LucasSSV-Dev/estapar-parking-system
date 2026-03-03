@@ -11,7 +11,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,7 +18,7 @@ import java.time.LocalDateTime;
 @Table(name = "parking_event")
 public class ParkingEvent {
 
-    @Id //Ia botar UUID mas vi que a perfomance do IDENTITY é melhor
+    @Id //Ia botar UUID, mas vi que a performance do IDENTITY é melhor
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -28,15 +27,15 @@ public class ParkingEvent {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false)
-    private EventType type;
+    private EventType eventType;
 
     @Column(name = "entry_time", nullable = false) //Hora que o carro entrou
     private LocalDateTime entryTime;
 
-    @Column(name = "sector_id")
-    private String sectorId;
-
     @Column
-    private BigDecimal price;
+    private double discount;
+
+    @Column(name = "exit_time")
+    private LocalDateTime exitTime;
 
 }
