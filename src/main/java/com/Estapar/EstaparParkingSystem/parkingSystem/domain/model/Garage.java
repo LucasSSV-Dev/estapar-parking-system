@@ -7,10 +7,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
+@Data
 @Table
 public class Garage {
 
@@ -27,6 +30,36 @@ public class Garage {
     @Column(name = "max_capacity")
     private int maxCapacity;
 
+    @Column(name = "current_occupancy")
+    private int currentOccupancy = 0;
+
     @OneToMany(mappedBy = "garage")
     private List<ParkingSpot> parkingSpots;
+
+
+
+
+    public void decrementOccupancy() {
+        currentOccupancy--;
+    }
+
+    public void incrementOccupancy() {
+        currentOccupancy++;
+    }
+
+    public BigDecimal calculateDynamicPrice() {
+        if (currentOccupancy >= maxCapacity) {
+            throw new IllegalStateException("Sector is full");
+        }
+        double rate = (double) currentOccupancy / maxCapacity;
+        if (rate < 0.25) {
+            return BigDecimal.valueOf(0.90);
+        } else if (rate < 0.50) {
+            return BigDecimal.valueOf(1.00);
+        } else if (rate < 0.75) {
+            return BigDecimal.valueOf(1.10);
+        } else {
+            return BigDecimal.valueOf(1.25);
+        }
+    }
 }

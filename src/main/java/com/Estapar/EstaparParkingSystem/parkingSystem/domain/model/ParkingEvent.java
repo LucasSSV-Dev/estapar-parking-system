@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -33,7 +34,7 @@ public class ParkingEvent {
     private LocalDateTime entryTime;
 
     @Column
-    private double discount;
+    private BigDecimal discount;
 
     @Column(name = "exit_time")
     private LocalDateTime exitTime;
