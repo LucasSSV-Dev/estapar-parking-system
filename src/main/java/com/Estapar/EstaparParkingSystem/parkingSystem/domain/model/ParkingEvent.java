@@ -19,9 +19,9 @@ import java.time.LocalDateTime;
 @Table(name = "parking_event")
 public class ParkingEvent {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //Ia botar UUID mas vi que a perfomance do IDENTITY é melhor
-    private Long id; //Identificador no sistema
+    @Id //Ia botar UUID mas vi que a perfomance do IDENTITY é melhor
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "license_plate", nullable = false)
     private String licensePlate;
@@ -32,9 +32,6 @@ public class ParkingEvent {
 
     @Column(name = "entry_time", nullable = false) //Hora que o carro entrou
     private LocalDateTime entryTime;
-
-    @Column(name = "entry_time")
-    private LocalDateTime exitTime; //Retirada do carro... Vou guardar pra fazer um histórico se pá
 
     @Column(name = "sector_id")
     private String sectorId;
