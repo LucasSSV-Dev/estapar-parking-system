@@ -17,10 +17,8 @@ public class WebhookController {
     private final WebhookService webhookService;
 
     @PostMapping
-    public ResponseEntity<Void> handleEvent(
-            @RequestBody WebhookEventRequestDTO request) {
-
+    public ResponseEntity<Void> handleEvent(@RequestBody WebhookEventRequestDTO request) {
         webhookService.process(request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().build(); //Famoso 200 OK
     }
 }
