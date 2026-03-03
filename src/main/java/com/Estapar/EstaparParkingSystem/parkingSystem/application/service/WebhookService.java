@@ -22,6 +22,7 @@ public class WebhookService {
     private final ParkingSpotRepository parkingSpotRepository;
 
 
+    @Transactional
     public void process(WebhookEventRequestDTO requestDTO) {
 
         switch (requestDTO.eventType()) {
@@ -88,8 +89,8 @@ public class WebhookService {
     }
 
     //EXIT
-    @Transactional
-    protected void handleExit(WebhookEventRequestDTO requestDTO) {
+
+    private void handleExit(WebhookEventRequestDTO requestDTO) {
 
         //De novo hahaha É isso, tenho que validar aqui né
         if (requestDTO.exitTime() == null) {
