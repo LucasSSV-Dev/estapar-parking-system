@@ -9,10 +9,15 @@ import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.GarageRe
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingEventRepository;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingSpotRepository;
 import lombok.extern.log4j.Log4j2;
+import org.jspecify.annotations.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
 
 @Service
 @Log4j2
@@ -58,7 +63,7 @@ public class WebhookService {
         parkingEvent.setLicensePlate(requestDTO.licensePlate());
         parkingEvent.setEventType(EventTypeEnum.ENTRY);
         parkingEvent.setEntryTime(requestDTO.entryTime());
-        parkingEvent.setDiscount(sector.calculateDynamicPrice()); //Calcula e insere o valor do desconto
+        parkingEvent.setDynamicPrice(sector.calculateDynamicPrice()); //Calcula e insere o valor do desconto
 
         //Salvar o ParkingEvent
         parkingEventRepository.save(parkingEvent);
@@ -114,15 +119,11 @@ public class WebhookService {
                 .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(requestDTO.licensePlate())
                 .orElseThrow(() -> new IllegalStateException("Vehicle not found in parking"));
 
-
-        //Se já saiu, já saiu... É pra caso aconteça de pedirem o mesmo carro de novo
-        if (parkingEvent.getExitTime() != null) {
-            return;
-        }
-
-        //Registra saída
+        //Registra saída e Calcula valor pago.
         parkingEvent.setExitTime(requestDTO.exitTime());
         parkingEvent.setEventType(EventTypeEnum.EXIT);
+        BigDecimal finalPrice = calculateParkingFee(parkingEvent);
+        parkingEvent.setPaydPrice(finalPrice);
 
         parkingEventRepository.save(parkingEvent);
 
@@ -144,6 +145,29 @@ public class WebhookService {
         garage.decrementOccupancy();
         garageRepository.save(garage);
         log.info("[ends] WebhookService - handleExit()\n");
+    }
+
+    private @NonNull BigDecimal calculateParkingFee(ParkingEvent parkingEvent) {
+        BigDecimal price = BigDecimal.ZERO;
+        //Calcula tempo estacionado
+        long minutes = Duration.between(
+                parkingEvent.getEntryTime(),
+                parkingEvent.getExitTime()
+        ).toMinutes();
+
+        //Arredonda pra cima se for maior que 30 minutos
+        if (minutes >= 31) {
+            long hoursCharged = (long) Math.ceil(minutes / 60.0);
+            // Busca garagem pelo sector salvo no evento
+            Garage garage = garageRepository
+                    .findBySector(parkingEvent.getSector())
+                    .orElseThrow(() -> new IllegalStateException("Garage not found"));
+
+            price = garage.getBasePrice()
+                    .multiply(BigDecimal.valueOf(hoursCharged))
+                    .setScale(2, RoundingMode.HALF_UP);
+        }
+        return price;
     }
 
 }
