@@ -1,6 +1,6 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.domain.model;
 
-import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventType;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventTypeEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,7 +28,7 @@ public class ParkingEvent {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type", nullable = false)
-    private EventType eventType;
+    private EventTypeEnum eventType;
 
     @Column(name = "entry_time", nullable = false)
     private LocalDateTime entryTime;
@@ -41,5 +41,8 @@ public class ParkingEvent {
 
     @Column
     private BigDecimal price;
+
+    @Column
+    private String sector;
 
 }
