@@ -8,7 +8,6 @@ import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.ParkingEv
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.ParkingSpotNotFoundException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.SectorFullException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.VehicleNotFoundException;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -102,15 +101,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, Object>> handleParkingEventNotOpen(ParkingEventNotOpenException exception) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.UNPROCESSABLE_ENTITY.value());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("error", "Parking Event Not Open");
         body.put("message", exception.getMessage());
 
-        return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception exception) {
+    public ResponseEntity<Map<String, Object>> handleGenericException() {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
