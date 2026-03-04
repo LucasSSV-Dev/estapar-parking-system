@@ -27,7 +27,6 @@ public class GarageImportService {
     @Value("${garage.api.url}")
     private String garageUrl;
 
-
     @Transactional
     public void importGarage() {
 
@@ -67,14 +66,14 @@ public class GarageImportService {
     private void saveSpots(List<ParkingSpotConfigDTO> spots) {
         List<ParkingSpot> entities = spots.stream()
                 .map(spotConfigDTO -> {
-                    ParkingSpot s = new ParkingSpot();
-                    s.setSector(spotConfigDTO.sector());
-                    s.setLatitude(spotConfigDTO.lat());
-                    s.setLongitude(spotConfigDTO.lng());
-                    s.setOccupied(false);
-                    s.setGarage(getGarage(spotConfigDTO));
+                    ParkingSpot spot = new ParkingSpot();
+                    spot.setSector(spotConfigDTO.sector());
+                    spot.setLatitude(spotConfigDTO.lat());
+                    spot.setLongitude(spotConfigDTO.lng());
+                    spot.setOccupied(false);
+                    spot.setGarage(getGarage(spotConfigDTO));
 
-                    return s;
+                    return spot;
                 })
                 .toList();
 
@@ -83,9 +82,9 @@ public class GarageImportService {
     }
 
 
-    private @NonNull Garage getGarage(ParkingSpotConfigDTO dto) {
+    private @NonNull Garage getGarage(ParkingSpotConfigDTO parkingSpotConfigDTO) {
         return garageRepository
-                .findBySector(dto.sector())
+                .findBySector(parkingSpotConfigDTO.sector())
                 .orElseThrow(() -> new IllegalStateException("Garage not found"));
     }
 }
