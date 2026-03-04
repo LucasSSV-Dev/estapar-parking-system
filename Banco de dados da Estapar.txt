@@ -18,7 +18,12 @@ lucas-ssv@lucas-ssv-MS-7C52:~$
 
 
 
+Status: Downloaded newer image for cfontes0estapar/garage-sim:1.0.0
+1ca79e8da955383384e861070d38c311f409cc1bf8663b91ff8a050c33f329a7
 
 
+Digest: sha256:4a23388600c4fbee8cea6dd2b8924d5dc869309ccd7a04fc75cff686d574eb7f
+Status: Downloaded newer image for cfontes0estapar/garage-sim:1.0.0
+1ca79e8da955383384e861070d38c311f409cc1bf8663b91ff8a050c33f329a7
 
 
