@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record GarageConfigDTO(
         String Sector,
-        String basePrice,
+        double basePrice,
 
         @JsonProperty("max_capacity")
         int maxCapacity
