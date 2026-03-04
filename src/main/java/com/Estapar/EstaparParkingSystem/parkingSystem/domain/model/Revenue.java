@@ -1,6 +1,7 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.domain.model;
 
 
+import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.RevenueResponseDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.CurrencyEnum;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,6 +15,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -33,7 +35,7 @@ public class Revenue {
     @Column(nullable = false)
     private LocalDate date;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
     @Column(name = "currency_code", nullable = false)
@@ -42,9 +44,18 @@ public class Revenue {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    
+
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    //Métodos
+    public RevenueResponseDTO toResponseDTO(){
+        return new RevenueResponseDTO(
+                this.amount,
+                this.currencyCode,
+                Instant.now()
+        );
+    }
 
 }
