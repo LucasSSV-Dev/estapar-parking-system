@@ -1,6 +1,6 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto;
 
-import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventType;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventTypeEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 
@@ -13,7 +13,7 @@ public record WebhookEventRequestDTO(
 
         @JsonProperty("event_type")
         @NotNull
-        EventType eventType,
+        EventTypeEnum eventType,
 
         @JsonProperty("entry_time")
         LocalDateTime entryTime,
