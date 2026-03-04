@@ -21,7 +21,7 @@ public class Garage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String sector;
 
     @Column(name = "base_price")
@@ -35,8 +35,6 @@ public class Garage {
 
     @OneToMany(mappedBy = "garage")
     private List<ParkingSpot> parkingSpots;
-
-
 
 
     public void decrementOccupancy() {
