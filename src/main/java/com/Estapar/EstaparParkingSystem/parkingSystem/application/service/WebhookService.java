@@ -1,7 +1,7 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.application.service;
 
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.WebhookEventRequestDTO;
-import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventType;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventTypeEnum;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.Garage;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingEvent;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingSpot;
@@ -52,7 +52,7 @@ public class WebhookService {
         //Criar evento
         ParkingEvent parkingEvent = new ParkingEvent();
         parkingEvent.setLicensePlate(requestDTO.licensePlate());
-        parkingEvent.setEventType(EventType.ENTRY);
+        parkingEvent.setEventType(EventTypeEnum.ENTRY);
         parkingEvent.setEntryTime(requestDTO.entryTime());
         parkingEvent.setDiscount(sector.calculateDynamicPrice()); //Calcula e insere o valor do desconto
 
@@ -72,6 +72,11 @@ public class WebhookService {
             throw new IllegalArgumentException("latitude and longitude are required for PARKED event");
         }
 
+        //Verifica se já houve ENTRY dessa placa e prepara o parkingEvent pra receber o valor do sector
+        ParkingEvent parkingEvent = parkingEventRepository
+                .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(requestDTO.licensePlate())
+                .orElseThrow(() -> new IllegalStateException("Parking event not found"));
+
         //Busca vaga pela coordenada
         ParkingSpot spot = parkingSpotRepository
                 .findByLatitudeAndLongitude(requestDTO.lat(), requestDTO.lng())
@@ -84,8 +89,10 @@ public class WebhookService {
 
         //Ocupa a vaga, insere a LicensePlate e atualiza no banco de dados
         spot.setOccupied(true);
-        spot.setCurrentLicensePlate(requestDTO.licensePlate());
+        spot.setCurrentLicensePlate(parkingEvent.getLicensePlate());
+        parkingEvent.setSector(spot.getSector());
         parkingSpotRepository.save(spot);
+        parkingEventRepository.save(parkingEvent);
     }
 
     //EXIT
@@ -110,7 +117,7 @@ public class WebhookService {
 
         //Registra saída
         parkingEvent.setExitTime(requestDTO.exitTime());
-        parkingEvent.setEventType(EventType.EXIT);
+        parkingEvent.setEventType(EventTypeEnum.EXIT);
 
         parkingEventRepository.save(parkingEvent);
 
