@@ -1,12 +1,13 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.application.infra.exception;
 
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.GarageConfigNotReceivedException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.GarageNotFoundException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.InvalidExitException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.InvalidRequestException;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.NoAvailableGarageException;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.OccupiedParkingSpotException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.ParkingEventAlreadyClosedException;
-import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.ParkingEventNotOpenException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.ParkingSpotNotFoundException;
-import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.SectorFullException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.VehicleNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,19 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("error", "Invalid Exit Event");
+        body.put("message", exception.getMessage());
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(GarageConfigNotReceivedException.class)
+    public ResponseEntity<Map<String, Object>> handleGarageConfigNotReceived(
+            GarageConfigNotReceivedException exception) {
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Garage Configuration Not Received");
         body.put("message", exception.getMessage());
 
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
@@ -75,8 +89,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(SectorFullException.class)
-    public ResponseEntity<Map<String, Object>> handleSectorFull(SectorFullException exception) {
+    @ExceptionHandler(NoAvailableGarageException.class)
+    public ResponseEntity<Map<String, Object>> handleNoAvailableGarage(NoAvailableGarageException exception) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.CONFLICT.value());
@@ -97,15 +111,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(ParkingEventNotOpenException.class)
-    public ResponseEntity<Map<String, Object>> handleParkingEventNotOpen(ParkingEventNotOpenException exception) {
+    @ExceptionHandler(OccupiedParkingSpotException.class)
+    public ResponseEntity<Map<String, Object>> handleOccupiedParkingSpot(
+            OccupiedParkingSpotException exception) {
+
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Parking Event Not Open");
+        body.put("status", HttpStatus.CONFLICT.value());
+        body.put("error", "Parking Spot Already Occupied");
         body.put("message", exception.getMessage());
 
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)
