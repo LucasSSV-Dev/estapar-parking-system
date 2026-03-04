@@ -9,6 +9,7 @@ import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.GarageRe
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingSpotRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.List;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class GarageImportService {
@@ -29,6 +31,7 @@ public class GarageImportService {
 
     @Transactional
     public void importGarage() {
+        log.info("[starts] GarageImportService - importGarage()");
 
         GarageConfigRequestDTO requestDTO =
                 restClient.get()
@@ -42,6 +45,7 @@ public class GarageImportService {
 
         saveGarages(requestDTO.garage());
         saveSpots(requestDTO.spots());
+        log.info("[ends] GarageImportService - importGarage()\n");
     }
 
     private void saveGarages(List<GarageConfigDTO> garages) {
@@ -58,6 +62,7 @@ public class GarageImportService {
                 .toList();
 
         garageRepository.saveAll(entities);
+        //Pra não dar problema de pesquisar a garagem depois e nao achar por não estar no banco ainda...
         garageRepository.flush();
     }
 
@@ -71,14 +76,13 @@ public class GarageImportService {
                     spot.setLatitude(spotConfigDTO.lat());
                     spot.setLongitude(spotConfigDTO.lng());
                     spot.setOccupied(false);
-                    spot.setGarage(getGarage(spotConfigDTO));
+                    spot.setGarage(getGarage(spotConfigDTO)); //Ia dar erro aqui
 
                     return spot;
                 })
                 .toList();
 
         parkingSpotRepository.saveAll(entities);
-
     }
 
 
