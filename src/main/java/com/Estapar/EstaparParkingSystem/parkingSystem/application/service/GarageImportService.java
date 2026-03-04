@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Log4j2
 @Service
@@ -38,7 +40,6 @@ public class GarageImportService {
                         .uri(garageUrl)
                         .retrieve()
                         .body(GarageConfigRequestDTO.class);
-
         if (requestDTO == null) {
             throw new IllegalStateException("Garage config not received");
         }
@@ -49,33 +50,44 @@ public class GarageImportService {
     }
 
     private void saveGarages(List<GarageConfigDTO> garages) {
+        Map<String, Garage> garageMap = getGarageMap();
         List<Garage> entities = garages.stream()
-                .map(garageConfigDTO -> {
-                    Garage garage = new Garage();
-                    garage.setSector(garageConfigDTO.sector());
-                    garage.setBasePrice(garageConfigDTO.basePrice());
-                    garage.setMaxCapacity(garageConfigDTO.maxCapacity());
-                    garage.setCurrentOccupancy(0);
+                .map(dto -> {
+                    Garage garage = garageMap.getOrDefault(
+                            dto.sector(),
+                            new Garage()
+                    );
+                    garage.setSector(dto.sector());
+                    garage.setBasePrice(dto.basePrice());
+                    garage.setMaxCapacity(dto.maxCapacity());
+                    if (garage.getId() == null) {
+                        garage.setCurrentOccupancy(0);
+                    }
 
                     return garage;
                 })
                 .toList();
 
         garageRepository.saveAll(entities);
-        //Pra não dar problema de pesquisar a garagem depois e nao achar por não estar no banco ainda...
-        garageRepository.flush();
+        garageRepository.flush();//Pra garantir que a entity exista no banco de dados
     }
 
-
-
     private void saveSpots(List<ParkingSpotConfigDTO> spots) {
+
         List<ParkingSpot> entities = spots.stream()
                 .map(spotConfigDTO -> {
-                    ParkingSpot spot = new ParkingSpot();
+                    ParkingSpot spot = parkingSpotRepository
+                            .findBySectorAndLatitudeAndLongitude(
+                                    spotConfigDTO.sector(),
+                                    spotConfigDTO.lat(),
+                                    spotConfigDTO.lng())
+                            .orElseGet(ParkingSpot::new);
                     spot.setSector(spotConfigDTO.sector());
                     spot.setLatitude(spotConfigDTO.lat());
                     spot.setLongitude(spotConfigDTO.lng());
-                    spot.setOccupied(false);
+                    if (spot.getId() == null) {
+                        spot.setOccupied(false);
+                    }
                     spot.setGarage(getGarage(spotConfigDTO)); //Ia dar erro aqui
 
                     return spot;
@@ -85,6 +97,12 @@ public class GarageImportService {
         parkingSpotRepository.saveAll(entities);
     }
 
+    private Map<String, Garage> getGarageMap() { //Tava fazendo a busca toda vez que ia no banco de dados
+        return garageRepository
+                .findAll()
+                .stream()
+                .collect(Collectors.toMap(Garage::getSector, g -> g)); //Melhor guardar ela e ver uma vez só :D
+    }
 
     private @NonNull Garage getGarage(ParkingSpotConfigDTO parkingSpotConfigDTO) {
         return garageRepository
