@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GarageLayoutGetterConfig implements CommandLineRunner {
 
-    private final GarageImportService importService;
+    private final GarageImportService garageImportService;
 
     @Override
     public void run(String... args) {
-        importService.importGarage();
+        garageImportService.importGarage();
     }
 }
