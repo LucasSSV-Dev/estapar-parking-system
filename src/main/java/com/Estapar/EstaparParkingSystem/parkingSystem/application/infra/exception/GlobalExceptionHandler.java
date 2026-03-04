@@ -1,4 +1,4 @@
-package com.Estapar.EstaparParkingSystem.common.Exception;
+package com.Estapar.EstaparParkingSystem.parkingSystem.application.infra.exception;
 
 import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
