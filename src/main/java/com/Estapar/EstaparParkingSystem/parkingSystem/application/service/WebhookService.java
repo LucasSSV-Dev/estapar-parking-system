@@ -8,12 +8,14 @@ import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingSpot;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.GarageRepository;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingEventRepository;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingSpotRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class WebhookService {
 
@@ -24,7 +26,7 @@ public class WebhookService {
 
     @Transactional
     public void process(WebhookEventRequestDTO requestDTO) {
-
+        log.info("[starts] WebhookService - process()");
         switch (requestDTO.eventType()) {
             case ENTRY -> handleEntry(requestDTO);
             case PARKED -> handleParked(requestDTO);
@@ -37,6 +39,8 @@ public class WebhookService {
 
     // ENTRY
     private void handleEntry(WebhookEventRequestDTO requestDTO) {
+        log.info("[starts] WebhookService - handleEntry()");
+
         //Só pra ter certeza =D
         if (requestDTO.entryTime() == null) { //Não pude botar esse validator no DTO
             throw new IllegalArgumentException("entryTime is required for ENTRY event");
@@ -62,11 +66,12 @@ public class WebhookService {
         //Aumenta a currentOccupancy e atualiza no banco de dados
         sector.incrementOccupancy();
         garageRepository.save(sector);
+        log.info("[ends] WebhookService - handleEntry()\n");
     }
 
     //PARKED
     private void handleParked(WebhookEventRequestDTO requestDTO) {
-
+        log.info("[starts] WebhookService - handleParked()");
         //Vou precisar desses dados e não pude botar esse validator no DTO
         if (requestDTO.lat() == null || requestDTO.lng() == null) {
             throw new IllegalArgumentException("latitude and longitude are required for PARKED event");
@@ -93,12 +98,12 @@ public class WebhookService {
         parkingEvent.setSector(spot.getSector());
         parkingSpotRepository.save(spot);
         parkingEventRepository.save(parkingEvent);
+        log.info("[ends] WebhookService - handleParked()\n");
     }
 
     //EXIT
-
     private void handleExit(WebhookEventRequestDTO requestDTO) {
-
+        log.info("[starts] WebhookService - handleExit()");
         //De novo hahaha É isso, tenho que validar aqui né
         if (requestDTO.exitTime() == null) {
             throw new IllegalArgumentException("exitTime is required for EXIT event");
@@ -138,6 +143,7 @@ public class WebhookService {
         }
         garage.decrementOccupancy();
         garageRepository.save(garage);
+        log.info("[ends] WebhookService - handleExit()\n");
     }
 
 }

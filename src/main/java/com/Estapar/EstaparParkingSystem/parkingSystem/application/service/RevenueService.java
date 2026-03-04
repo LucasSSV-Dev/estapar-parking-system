@@ -6,6 +6,7 @@ import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.CurrencyEnum;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventTypeEnum;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingEventRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -13,12 +14,14 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Service
+@Log4j2
 @RequiredArgsConstructor
 public class RevenueService {
 
     private final ParkingEventRepository parkingEventRepository;
 
     public RevenueResponseDTO calculateRevenue(RevenueRequestDTO revenueRequestDTO) {
+        log.info("[starts] RevenueService - calculateRevenue()");
 
         Interval interval = getDateStartAndEnd(revenueRequestDTO);
 
@@ -29,6 +32,7 @@ public class RevenueService {
                         revenueRequestDTO.sector(),
                         EventTypeEnum.EXIT
                 ).orElse(BigDecimal.ZERO);
+        log.info("[ends] RevenueService - calculateRevenue()\n");
 
         return new RevenueResponseDTO(
                 total,
