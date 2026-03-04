@@ -1,5 +1,6 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.application.service;
 
+import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.IntervalDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.RevenueRequestDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.RevenueResponseDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventTypeEnum;
@@ -8,6 +9,7 @@ import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingE
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.RevenueRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.antlr.v4.runtime.misc.Interval;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,7 +27,7 @@ public class RevenueService {
         log.info("[starts] RevenueService - calculateRevenue()");
 
         //Calculo no banco de dados
-        Interval interval = getDateStartAndEnd(revenueRequestDTO);
+        IntervalDTO interval = getDateStartAndEnd(revenueRequestDTO);
         BigDecimal amount = parkingEventRepository
                 .sumRevenueByDateAndSectorAndEventType(
                         interval.start(),
@@ -51,14 +53,9 @@ public class RevenueService {
         return revenue.toResponseDTO();
     }
 
-
-
-    private static Interval getDateStartAndEnd(RevenueRequestDTO dto) {
+    private static IntervalDTO getDateStartAndEnd(RevenueRequestDTO dto) {
         LocalDateTime start = dto.date().atStartOfDay();
         LocalDateTime end = start.plusDays(1);
-        return new Interval(start, end);
-    }
-
-    private record Interval(LocalDateTime start, LocalDateTime end) {
+        return new IntervalDTO(start, end);
     }
 }
