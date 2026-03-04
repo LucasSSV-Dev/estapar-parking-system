@@ -42,7 +42,7 @@ public class WebhookService {
             case ENTRY -> handleEntry(requestDTO);
             case PARKED -> handleParked(requestDTO);
             case EXIT -> handleExit(requestDTO);
-            default -> throw new InvalidRequestException("Unknown event type");
+            default -> throw new InvalidRequestException("Invalid event type");
         }
     }
 
@@ -54,7 +54,7 @@ public class WebhookService {
 
         //Só pra ter certeza =D
         if (requestDTO.entryTime() == null) { //Não pude botar esse validator no DTO
-            throw new InvalidRequestException("entryTime is required for ENTRY event");
+            throw new InvalidRequestException("Entry time is required for ENTRY event");
         }
 
         //Buscar setor com vaga
@@ -117,7 +117,7 @@ public class WebhookService {
         log.info("[starts] WebhookService - handleExit()");
         //De novo hahaha É isso, tenho que validar aqui né
         if (requestDTO.exitTime() == null) {
-            throw new InvalidRequestException("exitTime is required for EXIT event");
+            throw new InvalidRequestException("Exit time is required for EXIT event");
         }
 
         // busca evento ativo
