@@ -13,6 +13,7 @@ import lombok.Data;
 
 @Entity
 @Data
+//Evita que eu cadastre uma vaga que tenha a mesma combinação dos 3)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"sector", "latitude", "longitude"}))
 public class ParkingSpot {
     @Id
