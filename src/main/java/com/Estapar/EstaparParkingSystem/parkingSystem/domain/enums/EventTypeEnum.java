@@ -1,6 +1,6 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums;
 
-public enum EventType {
+public enum EventTypeEnum {
     ENTRY,
     PARKED,
     EXIT
