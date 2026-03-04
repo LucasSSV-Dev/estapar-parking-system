@@ -1,6 +1,5 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository;
 
-import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.Garage;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingSpot;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
