@@ -34,13 +34,13 @@ public class ParkingEvent {
     private LocalDateTime entryTime;
 
     @Column
-    private BigDecimal discount;
+    private BigDecimal dynamicPrice;
 
     @Column(name = "exit_time")
     private LocalDateTime exitTime;
 
     @Column
-    private BigDecimal price;
+    private BigDecimal paydPrice;
 
     @Column
     private String sector;

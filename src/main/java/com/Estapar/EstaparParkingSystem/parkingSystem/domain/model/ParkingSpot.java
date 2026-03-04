@@ -32,7 +32,7 @@ public class ParkingSpot {
     @Column(nullable = false)
     private boolean occupied;
 
-    @Column(name = "current_license_plate") // É só o que preciso mesmo xD
+    @Column(name = "current_license_plate")// É só o que preciso mesmo xD
     private String currentLicensePlate;
 
     @ManyToOne
