@@ -25,7 +25,7 @@ public class Garage {
     private String sector;
 
     @Column(name = "base_price")
-    private double basePrice;
+    private BigDecimal basePrice;
 
     @Column(name = "max_capacity")
     private int maxCapacity;
