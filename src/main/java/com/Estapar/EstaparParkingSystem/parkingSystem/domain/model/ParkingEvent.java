@@ -30,7 +30,7 @@ public class ParkingEvent {
     @Column(name = "event_type", nullable = false)
     private EventType eventType;
 
-    @Column(name = "entry_time", nullable = false) //Hora que o carro entrou
+    @Column(name = "entry_time", nullable = false)
     private LocalDateTime entryTime;
 
     @Column
@@ -38,5 +38,8 @@ public class ParkingEvent {
 
     @Column(name = "exit_time")
     private LocalDateTime exitTime;
+
+    @Column
+    private BigDecimal price;
 
 }
