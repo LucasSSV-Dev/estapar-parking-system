@@ -7,12 +7,13 @@ import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventTypeEnum
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.Revenue;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingEventRepository;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.RevenueRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.antlr.v4.runtime.misc.Interval;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Service
@@ -23,6 +24,7 @@ public class RevenueService {
     private final ParkingEventRepository parkingEventRepository;
     private final RevenueRepository revenueRepository;
 
+    @Transactional
     public RevenueResponseDTO calculateRevenue(RevenueRequestDTO revenueRequestDTO) {
         log.info("[starts] RevenueService - calculateRevenue()");
 
@@ -34,7 +36,7 @@ public class RevenueService {
                         interval.end(),
                         revenueRequestDTO.sector(),
                         EventTypeEnum.EXIT
-                ).orElse(BigDecimal.ZERO);
+                ).orElse(BigDecimal.ZERO).setScale(2, RoundingMode.DOWN);
 
         //Vejo se já foi realizado o cálculo para essa data e setor pra não criar múltiplas receitas
         Revenue revenue = revenueRepository.findBySectorAndDate(
@@ -48,6 +50,7 @@ public class RevenueService {
         }
         revenue.setAmount(amount);
         revenueRepository.save(revenue);
+        revenueRepository.flush();
 
         log.info("[ends] RevenueService - calculateRevenue()\n");
         return revenue.toResponseDTO();
