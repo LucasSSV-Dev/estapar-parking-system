@@ -2,18 +2,24 @@ package com.Estapar.EstaparParkingSystem.parkingSystem.application.service;
 
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.WebhookEventRequestDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventTypeEnum;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.GarageNotFoundException;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.InvalidRequestException;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.NoAvailableGarageException;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.OccupiedParkingSpotException;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.ParkingSpotNotFoundException;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.VehicleNotFoundException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.Garage;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingEvent;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingSpot;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.GarageRepository;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingEventRepository;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingSpotRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.jspecify.annotations.NonNull;
-import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -36,7 +42,7 @@ public class WebhookService {
             case ENTRY -> handleEntry(requestDTO);
             case PARKED -> handleParked(requestDTO);
             case EXIT -> handleExit(requestDTO);
-            default -> throw new IllegalArgumentException("Unknown event type");
+            default -> throw new InvalidRequestException("Unknown event type");
         }
     }
 
@@ -48,7 +54,7 @@ public class WebhookService {
 
         //Só pra ter certeza =D
         if (requestDTO.entryTime() == null) { //Não pude botar esse validator no DTO
-            throw new IllegalArgumentException("entryTime is required for ENTRY event");
+            throw new InvalidRequestException("entryTime is required for ENTRY event");
         }
 
         //Buscar setor com vaga
@@ -56,7 +62,7 @@ public class WebhookService {
                 .findAvailable(PageRequest.of(0, 1))
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Garage is full"));
+                .orElseThrow(() -> new NoAvailableGarageException("All Garages are full"));
 
         //Criar evento
         ParkingEvent parkingEvent = new ParkingEvent();
@@ -79,22 +85,22 @@ public class WebhookService {
         log.info("[starts] WebhookService - handleParked()");
         //Vou precisar desses dados e não pude botar esse validator no DTO
         if (requestDTO.lat() == null || requestDTO.lng() == null) {
-            throw new IllegalArgumentException("latitude and longitude are required for PARKED event");
+            throw new InvalidRequestException("latitude and longitude are required for PARKED event");
         }
 
         //Verifica se já houve ENTRY dessa placa e prepara o parkingEvent pra receber o valor do sector
         ParkingEvent parkingEvent = parkingEventRepository
                 .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(requestDTO.licensePlate())
-                .orElseThrow(() -> new IllegalStateException("Parking event not found"));
+                .orElseThrow(() -> new VehicleNotFoundException(requestDTO.licensePlate()));
 
         //Busca vaga pela coordenada
         ParkingSpot spot = parkingSpotRepository
                 .findByLatitudeAndLongitude(requestDTO.lat(), requestDTO.lng())
-                .orElseThrow(() -> new IllegalStateException("Parking spot not found"));
+                .orElseThrow(() -> new ParkingSpotNotFoundException("Parking spot not found"));
 
         //Verifica se já está ocupada
         if (spot.isOccupied()) {
-            throw new IllegalStateException("Parking spot already occupied");
+            throw new OccupiedParkingSpotException("Parking spot already occupied");
         }
 
         //Ocupa a vaga, insere a LicensePlate e atualiza no banco de dados
@@ -111,13 +117,13 @@ public class WebhookService {
         log.info("[starts] WebhookService - handleExit()");
         //De novo hahaha É isso, tenho que validar aqui né
         if (requestDTO.exitTime() == null) {
-            throw new IllegalArgumentException("exitTime is required for EXIT event");
+            throw new InvalidRequestException("exitTime is required for EXIT event");
         }
 
         // busca evento ativo
         ParkingEvent parkingEvent = parkingEventRepository
                 .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(requestDTO.licensePlate())
-                .orElseThrow(() -> new IllegalStateException("Vehicle not found in parking"));
+                .orElseThrow(() -> new VehicleNotFoundException(requestDTO.licensePlate()));
 
         //Registra saída e Calcula valor pago.
         parkingEvent.setExitTime(requestDTO.exitTime());
@@ -130,7 +136,7 @@ public class WebhookService {
         //Encontra a vaga pelo licensePlate
         ParkingSpot spot = parkingSpotRepository
                 .findByCurrentLicensePlate(requestDTO.licensePlate())
-                .orElseThrow(() -> new IllegalStateException("Parking spot not found"));
+                .orElseThrow(() -> new ParkingSpotNotFoundException("Parking spot not found"));
 
         //liberar vaga
             spot.setOccupied(false);
@@ -140,7 +146,10 @@ public class WebhookService {
         //Diminui a currentOccupancy do garage
         Garage garage = spot.getGarage();
         if (garage == null) {
-            throw new IllegalStateException("Parking spot without garage");
+            garage = garageRepository
+                    .findBySector(spot.getSector())
+                    .orElseThrow(() -> new GarageNotFoundException(requestDTO.licensePlate()));
+            spot.setGarage(garage);
         }
         garage.decrementOccupancy();
         garageRepository.save(garage);
@@ -155,13 +164,13 @@ public class WebhookService {
                 parkingEvent.getExitTime()
         ).toMinutes();
 
-        //Arredonda pra cima se for maior que 30 minutos
+        //Arredonda para cima se for maior que 30 minutos
         if (minutes >= 31) {
             long hoursCharged = (long) Math.ceil(minutes / 60.0);
             // Busca garagem pelo sector salvo no evento
             Garage garage = garageRepository
                     .findBySector(parkingEvent.getSector())
-                    .orElseThrow(() -> new IllegalStateException("Garage not found"));
+                    .orElseThrow(() -> new GarageNotFoundException("Garage not found"));
 
             price = garage.getBasePrice()
                     .multiply(BigDecimal.valueOf(hoursCharged))
