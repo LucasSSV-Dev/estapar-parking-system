@@ -3,6 +3,8 @@ package com.Estapar.EstaparParkingSystem.parkingSystem.application.service;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.GarageConfigDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.GarageConfigRequestDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.ParkingSpotConfigDTO;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.GarageConfigNotReceivedException;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.GarageNotFoundException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.Garage;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingSpot;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.GarageRepository;
@@ -41,7 +43,7 @@ public class GarageImportService {
                         .retrieve()
                         .body(GarageConfigRequestDTO.class);
         if (requestDTO == null) {
-            throw new IllegalStateException("Garage config not received");
+            throw new GarageConfigNotReceivedException("Garage config not received");
         }
 
         saveGarages(requestDTO.garage());
@@ -104,9 +106,11 @@ public class GarageImportService {
                 .collect(Collectors.toMap(Garage::getSector, g -> g)); //Melhor guardar ela e ver uma vez só :D
     }
 
-    private @NonNull Garage getGarage(ParkingSpotConfigDTO parkingSpotConfigDTO) {
+    private Garage getGarage(ParkingSpotConfigDTO parkingSpotConfigDTO) {
         return garageRepository
                 .findBySector(parkingSpotConfigDTO.sector())
-                .orElseThrow(() -> new IllegalStateException("Garage not found"));
+                .orElseThrow(() -> new GarageNotFoundException(
+                        "Garage with sector: " + parkingSpotConfigDTO.sector() + " was not found"
+                ));
     }
 }
