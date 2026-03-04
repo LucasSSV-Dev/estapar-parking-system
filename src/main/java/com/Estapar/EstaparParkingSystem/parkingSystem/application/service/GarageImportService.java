@@ -10,6 +10,7 @@ import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingS
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -23,14 +24,16 @@ public class GarageImportService {
     private final GarageRepository garageRepository;
     private final ParkingSpotRepository parkingSpotRepository;
 
-    private static final String GARAGE_URL = "http://localhost:3000/garage";
+    @Value("${garage.api.url}")
+    private String garageUrl;
+
 
     @Transactional
     public void importGarage() {
 
         GarageConfigRequestDTO requestDTO =
                 restClient.get()
-                        .uri(GARAGE_URL)
+                        .uri(garageUrl)
                         .retrieve()
                         .body(GarageConfigRequestDTO.class);
 
@@ -56,6 +59,7 @@ public class GarageImportService {
                 .toList();
 
         garageRepository.saveAll(entities);
+        garageRepository.flush();
     }
 
 
@@ -75,6 +79,7 @@ public class GarageImportService {
                 .toList();
 
         parkingSpotRepository.saveAll(entities);
+
     }
 
 

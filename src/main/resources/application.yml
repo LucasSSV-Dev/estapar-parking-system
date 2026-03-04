@@ -1,6 +1,10 @@
 server:
   port: 3003
 
+garage:
+  api:
+    url: http://localhost:3000/garage
+
 spring:
   application:
     name: EstaparParkingSystem
