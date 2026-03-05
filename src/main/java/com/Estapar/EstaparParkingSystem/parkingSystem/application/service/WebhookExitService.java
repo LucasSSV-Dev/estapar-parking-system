@@ -47,51 +47,53 @@ public class WebhookExitService {
         parkingEvent.setExitTime(requestDTO.exitTime());
         parkingEvent.setEventType(EventTypeEnum.EXIT);
 
-        BigDecimal finalPrice = calculateParkingFee(parkingEvent);
-        parkingEvent.setPaydPrice(finalPrice);
 
-        parkingEventRepository.save(parkingEvent);
+        if (parkingEvent.getSector() != null) {
+            BigDecimal finalPrice = calculateParkingFee(parkingEvent);
+            parkingEvent.setPaidPrice(finalPrice);
 
-        log.info("Final price: {}", finalPrice);
-        log.info("Plate Exited: {}", parkingEvent.getLicensePlate());
+            parkingEventRepository.save(parkingEvent);
 
-        RevenueRequestDTO revenueRequestDTO = new RevenueRequestDTO(
-                parkingEvent.getExitTime().toLocalDate(),
-                parkingEvent.getSector()
-        );
+            log.info("Final price: {}", finalPrice);
+            log.info("Plate Exited: {}", parkingEvent.getLicensePlate());
 
-        BigDecimal amount = revenueService.getRevenueAmount(revenueRequestDTO);
-        Revenue revenue = revenueService.createOrUpdateRevenue(revenueRequestDTO, amount);
-        revenueService.saveRevenue(revenue);
+            RevenueRequestDTO revenueRequestDTO = new RevenueRequestDTO(
+                    parkingEvent.getExitTime().toLocalDate(),
+                    parkingEvent.getSector()
+            );
+
+            BigDecimal amount = revenueService.getRevenueAmount(revenueRequestDTO);
+            Revenue revenue = revenueService.createOrUpdateRevenue(revenueRequestDTO, amount);
+            revenueService.saveRevenue(revenue);
 
 
-        log.info("Revenue from sector {} saved. Amount: {}", revenue.getSector(), revenue.getAmount());
+            log.info("Revenue from sector {} saved. Amount: {}", revenue.getSector(), revenue.getAmount());
 
-        ParkingSpot spot = parkingSpotRepository
-                .findByCurrentLicensePlate(requestDTO.licensePlate())
-                .orElseThrow(() -> new ParkingSpotNotFoundException("Parking spot not found"));
+            ParkingSpot spot = parkingSpotRepository
+                    .findByCurrentLicensePlate(requestDTO.licensePlate())
+                    .orElseThrow(() -> new ParkingSpotNotFoundException("Parking spot not found"));
 
-        spot.setOccupied(false);
-        spot.setCurrentLicensePlate(null);
+            spot.setOccupied(false);
+            spot.setCurrentLicensePlate(null);
 
-        parkingSpotRepository.save(spot);
+            parkingSpotRepository.save(spot);
 
-        log.info("Parking spot released: {}", spot.getId());
+            log.info("Parking spot released: {}", spot.getId());
 
-        Garage garage = spot.getGarage();
+            Garage garage = spot.getGarage();
 
-        if (garage == null) {
-            garage = garageRepository
-                    .findBySector(spot.getSector())
-                    .orElseThrow(() -> new GarageNotFoundException(requestDTO.licensePlate()));
-            spot.setGarage(garage);
+            if (garage == null) {
+                garage = garageRepository
+                        .findBySector(spot.getSector())
+                        .orElseThrow(() -> new GarageNotFoundException(requestDTO.licensePlate()));
+                spot.setGarage(garage);
+            }
+
+            garage.decrementOccupancy();
+            garageRepository.save(garage);
+            log.info("Garage {} occupancy decremented: {} of {}", garage.getSector(), garage.getCurrentOccupancy(), garage.getMaxCapacity());
         }
 
-        garage.decrementOccupancy();
-        garageRepository.save(garage);
-        garageRepository.flush();
-
-        log.info("Garage {} occupancy decremented: {} of {}", garage.getSector(), garage.getCurrentOccupancy(), garage.getMaxCapacity());
         log.info("[ends] WebhookExitService - handleExit()");
     }
 
