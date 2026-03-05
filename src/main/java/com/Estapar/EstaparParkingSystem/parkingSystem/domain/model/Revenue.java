@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 @Entity
 @Data
+@NoArgsConstructor
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"sector", "date"}))
 public class Revenue {
 
@@ -48,6 +50,11 @@ public class Revenue {
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+
+    public Revenue(String sector, LocalDate date, BigDecimal amount) {
+    }
+
 
     //Métodos
     public RevenueResponseDTO toResponseDTO(){
