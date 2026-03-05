@@ -38,7 +38,7 @@ public class Revenue {
     private LocalDate date;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal amount;
+    private BigDecimal amount = BigDecimal.ZERO;
 
     @Column(name = "currency_code", nullable = false)
     private CurrencyEnum currencyCode = CurrencyEnum.BRL;
