@@ -44,14 +44,20 @@ public class RevenueService {
 
     protected void saveRevenue(Revenue revenue) {
         revenueRepository.save(revenue);
+        revenueRepository.flush();
     }
 
-    protected Revenue createOrUpdateRevenue(RevenueRequestDTO revenueRequestDTO, BigDecimal amount) {
-         Optional<Revenue> revenue = revenueRepository.findBySectorAndDate(
-                revenueRequestDTO.sector(),
-                revenueRequestDTO.date()
+    protected Revenue createOrUpdateRevenue(RevenueRequestDTO dto, BigDecimal amount) {
+        Optional<Revenue> revenueOpt = revenueRepository.findBySectorAndDate(
+                dto.sector(),
+                dto.date()
         );
-        return revenue.orElseGet(() -> new Revenue(revenueRequestDTO.sector(), revenueRequestDTO.date(), amount));
+        if (revenueOpt.isPresent()) {
+            Revenue revenue = revenueOpt.get();
+            revenue.setAmount(amount);
+            return revenue;
+        }
+        return new Revenue(dto.sector(), dto.date(), amount);
     }
 
     protected BigDecimal getRevenueAmount(RevenueRequestDTO revenueRequestDTO) {
