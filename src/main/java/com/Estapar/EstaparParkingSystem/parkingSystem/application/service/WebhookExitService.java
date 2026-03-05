@@ -33,9 +33,9 @@ public class WebhookExitService {
     private final GarageRepository garageRepository;
     private final RevenueService revenueService;
 
-    public void handle(WebhookEventRequestDTO requestDTO) {
+    public void handleExit(WebhookEventRequestDTO requestDTO) {
 
-        log.info("[starts] WebhookExitService - handle()");
+        log.info("[starts] WebhookExitService - handleExit()");
 
         if (requestDTO.exitTime() == null) {
             throw new InvalidRequestException("Exit time is required for EXIT event");
@@ -89,9 +89,10 @@ public class WebhookExitService {
 
         garage.decrementOccupancy();
         garageRepository.save(garage);
+        garageRepository.flush();
 
-        log.info("Garage occupancy decremented: {}", garage);
-        log.info("[ends] WebhookExitService - handle()");
+        log.info("Garage occupancy decremented: : {} of {}", garage.getCurrentOccupancy(), garage.getMaxCapacity());
+        log.info("[ends] WebhookExitService - handleExit()");
     }
 
     private @NonNull BigDecimal calculateParkingFee(ParkingEvent parkingEvent) {

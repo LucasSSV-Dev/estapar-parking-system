@@ -21,9 +21,9 @@ public class WebhookEntryService {
     private final GarageRepository garageRepository;
     private final ParkingEventRepository parkingEventRepository;
 
-    public void handle(WebhookEventRequestDTO requestDTO) {
+    public void handleEntry(WebhookEventRequestDTO requestDTO) {
 
-        log.info("[starts] WebhookEntryService - handle()");
+        log.info("[starts] WebhookEntryService - handleEntry()");
 
         if (requestDTO.entryTime() == null) {
             throw new InvalidRequestException("Entry time is required for ENTRY event");
@@ -49,6 +49,6 @@ public class WebhookEntryService {
         garageRepository.save(garage);
 
         log.info("Garage occupancy incremented: {}", garage);
-        log.info("[ends] WebhookEntryService - handle()");
+        log.info("[ends] WebhookEntryService - handleEntry()");
     }
 }

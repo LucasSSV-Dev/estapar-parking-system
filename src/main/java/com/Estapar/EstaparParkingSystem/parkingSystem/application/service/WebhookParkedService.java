@@ -21,9 +21,8 @@ public class WebhookParkedService {
     private final ParkingEventRepository parkingEventRepository;
     private final ParkingSpotRepository parkingSpotRepository;
 
-    public void handle(WebhookEventRequestDTO requestDTO) {
-
-        log.info("[starts] WebhookParkedService - handle()");
+    public void handleParked(WebhookEventRequestDTO requestDTO) {
+        log.info("[starts] WebhookParkedService - handleParked()");
 
         if (requestDTO.lat() == null || requestDTO.lng() == null) {
             throw new InvalidRequestException("latitude and longitude are required for PARKED event");
@@ -49,7 +48,7 @@ public class WebhookParkedService {
         parkingEventRepository.save(parkingEvent);
 
         log.info("Parking spot occupied: {}", spot);
-        log.info("ParkingEvent Parked: {}", parkingEvent);
-        log.info("[ends] WebhookParkedService - handle()");
+        log.info("ParkingEvent created for plate {}", parkingEvent.getLicensePlate());
+        log.info("[ends] WebhookParkedService - handleParked()");
     }
 }
