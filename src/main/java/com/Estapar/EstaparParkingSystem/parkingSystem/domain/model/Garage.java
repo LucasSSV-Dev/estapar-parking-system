@@ -1,5 +1,7 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.domain.model;
 
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.NoParkingSpotsAvailableException;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.ParkingSpotNotFoundException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,17 +40,20 @@ public class Garage {
 
 
     public void decrementOccupancy() {
+        if (currentOccupancy == 0) {
+            throw new ParkingSpotNotFoundException("Garage is already empty");
+        }
         currentOccupancy--;
     }
 
     public void incrementOccupancy() {
+        if (currentOccupancy >= maxCapacity) {
+            throw new NoParkingSpotsAvailableException("Garage is full");
+        }
         currentOccupancy++;
     }
 
     public BigDecimal calculateDynamicPrice() {
-        if (currentOccupancy >= maxCapacity) {
-            throw new IllegalStateException("Sector is full");
-        }
         double rate = (double) currentOccupancy / maxCapacity;
         if (rate < 0.25) {
             return BigDecimal.valueOf(0.90);
