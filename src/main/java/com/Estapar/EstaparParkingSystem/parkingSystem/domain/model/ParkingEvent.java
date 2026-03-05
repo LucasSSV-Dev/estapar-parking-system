@@ -40,7 +40,7 @@ public class ParkingEvent {
     private LocalDateTime exitTime;
 
     @Column
-    private BigDecimal paydPrice;
+    private BigDecimal paidPrice;
 
     @Column
     private String sector;
