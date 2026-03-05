@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class EstaparParkingSystemApplication {
 
 	public static void main(String[] args) {
-		log.info("[starts] EstaparParkingSystemApplication - SpringApplication.run()");
 		SpringApplication.run(EstaparParkingSystemApplication.class, args);
 	}
 
