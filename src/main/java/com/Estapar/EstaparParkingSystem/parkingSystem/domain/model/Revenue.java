@@ -55,7 +55,6 @@ public class Revenue {
     public Revenue(String sector, LocalDate date, BigDecimal amount) {
     }
 
-
     //Métodos
     public RevenueResponseDTO toResponseDTO(){
         return new RevenueResponseDTO(
