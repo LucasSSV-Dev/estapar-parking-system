@@ -44,7 +44,6 @@ public class RevenueService {
 
     protected void saveRevenue(Revenue revenue) {
         revenueRepository.save(revenue);
-        revenueRepository.flush();
     }
 
     protected Revenue createOrUpdateRevenue(RevenueRequestDTO dto, BigDecimal amount) {
@@ -62,13 +61,17 @@ public class RevenueService {
 
     protected BigDecimal getRevenueAmount(RevenueRequestDTO revenueRequestDTO) {
         IntervalDTO interval = getDateStartAndEnd(revenueRequestDTO);
-        return parkingEventRepository
+        Optional<BigDecimal> amountOpt =  parkingEventRepository
                 .sumRevenueByDateAndSectorAndEventType(
                         interval.start(),
                         interval.end(),
                         revenueRequestDTO.sector(),
                         EventTypeEnum.EXIT
-                ).orElse(BigDecimal.ZERO).setScale(2, RoundingMode.DOWN);
+                );
+        if (amountOpt.isPresent()) {
+            return amountOpt.get().setScale(2, RoundingMode.DOWN);
+        }
+        return BigDecimal.ZERO.setScale(2, RoundingMode.DOWN);
     }
 
     private IntervalDTO getDateStartAndEnd(RevenueRequestDTO dto) {
