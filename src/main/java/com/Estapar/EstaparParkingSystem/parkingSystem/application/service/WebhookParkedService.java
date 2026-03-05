@@ -47,8 +47,8 @@ public class WebhookParkedService {
         parkingSpotRepository.save(spot);
         parkingEventRepository.save(parkingEvent);
 
-        log.info("Parking spot occupied: {}", spot);
         log.info("ParkingEvent created for plate {}", parkingEvent.getLicensePlate());
+        log.info("Parking spot {} on sector {} occupied with plate: {}", spot.getId(), spot.getSector(), spot.getCurrentLicensePlate());
         log.info("[ends] WebhookParkedService - handleParked()");
     }
 }

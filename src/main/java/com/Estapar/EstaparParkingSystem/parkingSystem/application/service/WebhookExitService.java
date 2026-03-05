@@ -34,7 +34,6 @@ public class WebhookExitService {
     private final RevenueService revenueService;
 
     public void handleExit(WebhookEventRequestDTO requestDTO) {
-
         log.info("[starts] WebhookExitService - handleExit()");
 
         if (requestDTO.exitTime() == null) {
@@ -54,7 +53,7 @@ public class WebhookExitService {
         parkingEventRepository.save(parkingEvent);
 
         log.info("Final price: {}", finalPrice);
-        log.info("ParkingEvent Exited: {}", parkingEvent);
+        log.info("Plate Exited: {}", parkingEvent.getLicensePlate());
 
         RevenueRequestDTO revenueRequestDTO = new RevenueRequestDTO(
                 parkingEvent.getExitTime().toLocalDate(),
@@ -65,7 +64,8 @@ public class WebhookExitService {
         Revenue revenue = revenueService.createOrUpdateRevenue(revenueRequestDTO, amount);
         revenueService.saveRevenue(revenue);
 
-        log.info("Revenue saved: {}", revenue);
+
+        log.info("Revenue from sector {} saved. Amount: {}", revenue.getSector(), revenue.getAmount());
 
         ParkingSpot spot = parkingSpotRepository
                 .findByCurrentLicensePlate(requestDTO.licensePlate())
@@ -76,7 +76,7 @@ public class WebhookExitService {
 
         parkingSpotRepository.save(spot);
 
-        log.info("Parking spot released: {}", spot);
+        log.info("Parking spot released: {}", spot.getId());
 
         Garage garage = spot.getGarage();
 
@@ -91,7 +91,7 @@ public class WebhookExitService {
         garageRepository.save(garage);
         garageRepository.flush();
 
-        log.info("Garage occupancy decremented: : {} of {}", garage.getCurrentOccupancy(), garage.getMaxCapacity());
+        log.info("Garage {} occupancy decremented: {} of {}", garage.getSector(), garage.getCurrentOccupancy(), garage.getMaxCapacity());
         log.info("[ends] WebhookExitService - handleExit()");
     }
 

@@ -43,12 +43,12 @@ public class WebhookEntryService {
 
         parkingEventRepository.save(parkingEvent);
 
-        log.info("ParkingEvent Created: {}", parkingEvent);
+        log.info("Vehicle with plate '{}' entered.", parkingEvent);
 
         garage.incrementOccupancy();
         garageRepository.save(garage);
 
-        log.info("Garage occupancy incremented: {}", garage);
+        log.info("Garage {} occupancy incremented: {} of {}", garage.getSector(), garage.getCurrentOccupancy(), garage.getMaxCapacity());
         log.info("[ends] WebhookEntryService - handleEntry()");
     }
 }
