@@ -16,7 +16,7 @@ public interface ParkingEventRepository extends JpaRepository<ParkingEvent, Long
     Optional<ParkingEvent> findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(String licensePlate);
 
     @Query("""
-    SELECT COALESCE(SUM(e.paydPrice), 0)
+    SELECT COALESCE(SUM(e.paidPrice), 0)
     FROM ParkingEvent e
     WHERE e.eventType = :eventType
       AND e.sector = :sector
