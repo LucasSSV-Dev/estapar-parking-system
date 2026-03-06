@@ -3,6 +3,7 @@ package com.Estapar.EstaparParkingSystem.parkingSystem.application.service;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.GarageConfigDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.GarageConfigRequestDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.ParkingSpotConfigDTO;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.GarageConfigNotReceivedException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.Garage;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.GarageRepository;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingSpotRepository;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -41,7 +43,7 @@ class GarageImportServiceTest {
 
 
     @Test
-    @DisplayName("Should import Garage successfully")
+    @DisplayName("Should save garages and parking spots when API returns garage configuration")
     void GarageImportServiceTest_importGarage_shouldSaveGaragesAndParkingSpots() {
 
         // Arrange
@@ -83,6 +85,37 @@ class GarageImportServiceTest {
         verify(restClient).get();
         verify(garageRepository).saveAll(anyList());
         verify(parkingSpotRepository).saveAll(anyList());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when API returns null")
+    void GarageImportServiceTest_importGarage_shouldThrowExceptionWhenApiReturnsNull() {
+
+        // Arrange
+        ReflectionTestUtils.setField(garageImportService, "garageUrl", "http://fake-url");
+
+        RestClient.RequestHeadersUriSpec uriSpecMock =
+                mock(RestClient.RequestHeadersUriSpec.class);
+
+        RestClient.RequestHeadersSpec headersSpecMock =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.ResponseSpec responseMock =
+                mock(RestClient.ResponseSpec.class);
+
+        when(restClient.get()).thenReturn(uriSpecMock);
+        when(uriSpecMock.uri(anyString())).thenReturn(headersSpecMock);
+        when(headersSpecMock.retrieve()).thenReturn(responseMock);
+        when(responseMock.body(GarageConfigRequestDTO.class)).thenReturn(null);
+
+        // Act + Assert
+        assertThrows(
+                GarageConfigNotReceivedException.class,
+                () -> garageImportService.importGarage()
+        );
+
+        verify(garageRepository, never()).saveAll(anyList());
+        verify(parkingSpotRepository, never()).saveAll(anyList());
     }
 
 }
