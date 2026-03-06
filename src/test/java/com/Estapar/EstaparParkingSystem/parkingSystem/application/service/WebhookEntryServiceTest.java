@@ -31,7 +31,7 @@ class WebhookEntryServiceTest {
 
     @Test
     @DisplayName("Should save ParkingEvent correctly when entryTime is valid")
-    void WebhookEntryServiceTest_handleEntry_shouldSaveParkingEventWithCorrectData() {
+    void WebhookEntryServiceTest_handleEntry_case01() {
         // Arrange
         LocalDateTime entryTime = LocalDateTime.now();
 
@@ -61,15 +61,14 @@ class WebhookEntryServiceTest {
 
     @Test
     @DisplayName("Should throw InvalidRequestException when entryTime is null")
-    void WebhookEntryServiceTest_handleEntry_shouldThrowExceptionWhenEntryTimeIsNull() {
+    void WebhookEntryServiceTest_handleEntry_case02() {
 
         // Arrange
-        LocalDateTime entryTime = null;
         WebhookEventRequestDTO request = new WebhookEventRequestDTO(
 
                 "ABC1234",
                 EventTypeEnum.ENTRY,
-                entryTime,
+                null,// entryTime
                 null,
                 null,
                 null
