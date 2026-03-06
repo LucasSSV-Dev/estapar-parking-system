@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -179,7 +180,7 @@ class WebhookExitServiceTest {
         service.handleExit(requestDTO);
 
         // Assert
-        assertEquals(BigDecimal.ZERO.setScale(2), parkingEvent.getPaidPrice());
+        assertEquals(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP), parkingEvent.getPaidPrice());
     }
 
     @Test
