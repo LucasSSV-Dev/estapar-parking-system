@@ -20,6 +20,11 @@ public class WebhookService {
     @Transactional
     public void process(WebhookEventRequestDTO requestDTO) {
         log.info("[starts] WebhookService - process()");
+
+        if (requestDTO.eventType() == null) {
+            throw new InvalidRequestException("Invalid event type");
+        }
+
         switch (requestDTO.eventType()) {
             case ENTRY -> entryService.handleEntry(requestDTO);
             case PARKED -> parkedService.handleParked(requestDTO);
