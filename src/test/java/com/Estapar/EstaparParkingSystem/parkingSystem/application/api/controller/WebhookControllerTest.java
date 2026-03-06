@@ -3,6 +3,7 @@ package com.Estapar.EstaparParkingSystem.parkingSystem.application.api.controlle
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.WebhookEventRequestDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.service.WebhookService;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventTypeEnum;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.InvalidRequestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -62,6 +64,22 @@ class WebhookControllerTest {
                 .andExpect(status().isOk());
 
         verify(webhookService).process(any());
+    }
+
+    @Test
+    @DisplayName("Should return 400 when service throws InvalidRequestException")
+    void WebhookController_handleEvent_case02() throws Exception {
+
+        doThrow(new InvalidRequestException("Invalid event"))
+                .when(webhookService)
+                .process(any());
+
+        mockMvc.perform(
+                        post("/webhook")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(requestDTO))
+                )
+                .andExpect(status().isBadRequest());
     }
 
 }
