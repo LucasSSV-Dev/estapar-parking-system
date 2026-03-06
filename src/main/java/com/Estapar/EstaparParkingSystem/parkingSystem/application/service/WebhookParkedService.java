@@ -6,7 +6,6 @@ import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.InvalidRe
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.OccupiedParkingSpotException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.ParkingSpotNotFoundException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.VehicleNotFoundException;
-import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.Garage;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingEvent;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingSpot;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.GarageRepository;
