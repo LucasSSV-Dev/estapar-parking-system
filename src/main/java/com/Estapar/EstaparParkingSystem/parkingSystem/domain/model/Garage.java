@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Entity
@@ -56,13 +57,13 @@ public class Garage {
     public BigDecimal calculateDynamicPrice() {
         double rate = (double) currentOccupancy / maxCapacity;
         if (rate < 0.25) {
-            return BigDecimal.valueOf(0.90);
+            return BigDecimal.valueOf(0.90).setScale(2, RoundingMode.HALF_UP);
         } else if (rate < 0.50) {
-            return BigDecimal.valueOf(1.00);
+            return BigDecimal.valueOf(1.00).setScale(2, RoundingMode.HALF_UP);
         } else if (rate < 0.75) {
-            return BigDecimal.valueOf(1.10);
+            return BigDecimal.valueOf(1.10).setScale(2, RoundingMode.HALF_UP);
         } else {
-            return BigDecimal.valueOf(1.25);
+            return BigDecimal.valueOf(1.25).setScale(2, RoundingMode.HALF_UP);
         }
     }
 }
