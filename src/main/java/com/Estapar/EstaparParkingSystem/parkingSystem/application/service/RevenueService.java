@@ -29,7 +29,7 @@ public class RevenueService {
         log.info("[starts] RevenueService - calculateRevenue()");
 
         //Calculo no banco de dados
-        BigDecimal amount = getRevenueAmount(revenueRequestDTO);
+        BigDecimal amount = calculateRevenueAmount(revenueRequestDTO);
 
         //Vejo se já foi realizado o cálculo para essa data e setor pra não criar múltiplas receitas do mesmo período
         Revenue revenue = createOrUpdateRevenue(revenueRequestDTO, amount);
@@ -52,15 +52,13 @@ public class RevenueService {
         );
         if (revenueOpt.isPresent()) {
             Revenue revenue = revenueOpt.get();
-            revenue.setSector(dto.sector());
-            revenue.setDate(dto.date());
             revenue.setAmount(amount);
             return revenue;
         }
         return new Revenue(dto.sector(), dto.date(), amount);
     }
 
-    protected BigDecimal getRevenueAmount(RevenueRequestDTO revenueRequestDTO) {
+    protected BigDecimal calculateRevenueAmount(RevenueRequestDTO revenueRequestDTO) {
         IntervalDTO interval = getDateStartAndEnd(revenueRequestDTO);
         return parkingEventRepository
                 .sumRevenueByDateAndSectorAndEventType(
