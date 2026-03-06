@@ -16,14 +16,14 @@ public interface ParkingEventRepository extends JpaRepository<ParkingEvent, Long
     Optional<ParkingEvent> findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(String licensePlate);
 
     @Query("""
-    SELECT COALESCE(SUM(e.paidPrice), 0)
-    FROM ParkingEvent e
-    WHERE e.eventType = :eventType
-      AND e.sector = :sector
-      AND e.exitTime >= :startOfDay
-      AND e.exitTime < :endOfDay
+        SELECT COALESCE(SUM(e.paidPrice), 0.0)
+        FROM ParkingEvent e
+        WHERE e.eventType = :eventType
+          AND e.sector = :sector
+          AND e.exitTime >= :startOfDay
+          AND e.exitTime < :endOfDay
 """)
-    Optional<BigDecimal> sumRevenueByDateAndSectorAndEventType(
+    BigDecimal sumRevenueByDateAndSectorAndEventType(
             @Param("startOfDay") LocalDateTime startOfDay,
             @Param("endOfDay") LocalDateTime endOfDay,
             @Param("sector") String sector,
