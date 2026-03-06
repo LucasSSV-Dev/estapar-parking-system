@@ -30,7 +30,7 @@ public class WebhookEntryService {
 
         parkingEventRepository.save(parkingEvent);
 
-        log.info("Vehicle with plate '{}' entered.", parkingEvent.getLicensePlate());
+        log.info("Vehicle with plate '{}' entered at {}.", parkingEvent.getLicensePlate(), parkingEvent.getEntryTime());
         log.info("[ends] WebhookEntryService - handleEntry()");
     }
 }
