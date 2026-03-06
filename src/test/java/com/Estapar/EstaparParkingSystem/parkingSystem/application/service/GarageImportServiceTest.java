@@ -108,7 +108,7 @@ class GarageImportServiceTest {
         when(headersSpecMock.retrieve()).thenReturn(responseMock);
         when(responseMock.body(GarageConfigRequestDTO.class)).thenReturn(null);
 
-        // Act + Assert
+        // Assert
         assertThrows(
                 GarageConfigNotReceivedException.class,
                 () -> garageImportService.importGarage()
@@ -121,11 +121,12 @@ class GarageImportServiceTest {
     @Test
     @DisplayName("Should throw exception when API call fails")
     void shouldThrowExceptionWhenApiFails() {
-
+        // Arrange
         ReflectionTestUtils.setField(garageImportService, "garageUrl", "http://fake-url");
 
         when(restClient.get()).thenThrow(new GarageConfigNotReceivedException("Garage config not received"));
 
+        // Assert
         assertThrows(GarageConfigNotReceivedException.class,
                 () -> garageImportService.importGarage());
 

@@ -103,7 +103,7 @@ public class GarageImportService {
         return garageRepository
                 .findAll()
                 .stream()
-                .collect(Collectors.toMap(Garage::getSector, g -> g)); //Melhor guardar ela e ver uma vez só :D
+                .collect(Collectors.toMap(Garage::getSector, garage -> garage)); //Melhor guardar ela e ver uma vez só :D
     }
 
     private Garage getGarage(ParkingSpotConfigDTO parkingSpotConfigDTO) {
