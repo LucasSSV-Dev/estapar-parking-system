@@ -70,7 +70,7 @@ public class GarageImportService {
                 .toList();
 
         garageRepository.saveAll(entities);
-        garageRepository.flush();//Pra garantir que a entity exista no banco de dados
+        garageRepository.flush();//Para garantir que a entity exista no banco de dados, se não daria erro abaixo
     }
 
     private void saveSpots(List<ParkingSpotConfigDTO> spots) {

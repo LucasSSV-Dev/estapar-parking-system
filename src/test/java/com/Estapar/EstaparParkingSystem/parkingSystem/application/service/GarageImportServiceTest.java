@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
@@ -37,11 +38,15 @@ class GarageImportServiceTest {
     @InjectMocks
     private GarageImportService garageImportService;
 
+
+
     @Test
     @DisplayName("Should import Garage successfully")
-    void GarageImportServiceTest_importGarageTestCase1() {
+    void GarageImportServiceTest_importGarage_shouldSaveGaragesAndParkingSpots() {
 
         // Arrange
+        ReflectionTestUtils.setField(garageImportService, "garageUrl", "http://fake-url");
+
         GarageConfigDTO garageDTO =
                 new GarageConfigDTO("A", new BigDecimal("10.00"), 100);
 
@@ -54,12 +59,18 @@ class GarageImportServiceTest {
                         List.of(spotDTO)
                 );
 
-        RestClient.RequestHeadersUriSpec requestMock = mock(RestClient.RequestHeadersUriSpec.class);
-        RestClient.ResponseSpec responseMock = mock(RestClient.ResponseSpec.class);
+        RestClient.RequestHeadersUriSpec uriSpecMock =
+                mock(RestClient.RequestHeadersUriSpec.class);
 
-        when(restClient.get()).thenReturn(requestMock);
-        when(requestMock.uri(anyString())).thenReturn(requestMock);
-        when(requestMock.retrieve()).thenReturn(responseMock);
+        RestClient.RequestHeadersSpec headersSpecMock =
+                mock(RestClient.RequestHeadersSpec.class);
+
+        RestClient.ResponseSpec responseMock =
+                mock(RestClient.ResponseSpec.class);
+
+        when(restClient.get()).thenReturn(uriSpecMock);
+        when(uriSpecMock.uri(anyString())).thenReturn(headersSpecMock);
+        when(headersSpecMock.retrieve()).thenReturn(responseMock);
         when(responseMock.body(GarageConfigRequestDTO.class)).thenReturn(response);
 
         when(garageRepository.findAll()).thenReturn(List.of());
