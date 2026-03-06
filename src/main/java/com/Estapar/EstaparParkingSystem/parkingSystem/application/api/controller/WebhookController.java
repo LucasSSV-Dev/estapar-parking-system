@@ -2,6 +2,7 @@ package com.Estapar.EstaparParkingSystem.parkingSystem.application.api.controlle
 
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.WebhookEventRequestDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.service.WebhookService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class WebhookController {
     private final WebhookService webhookService;
 
     @PostMapping
-    public ResponseEntity<Void> handleEvent(@RequestBody WebhookEventRequestDTO eventRequestDTO) {
+    public ResponseEntity<Void> handleEvent(@Valid @RequestBody WebhookEventRequestDTO eventRequestDTO) {
         log.info("[starts] WebhookController - handleEvent()");
         webhookService.process(eventRequestDTO);
         log.info("[ends] WebhookController - handleEvent()\n");
