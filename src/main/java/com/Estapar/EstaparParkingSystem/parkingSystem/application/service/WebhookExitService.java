@@ -1,16 +1,13 @@
 package com.Estapar.EstaparParkingSystem.parkingSystem.application.service;
 
-import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.RevenueRequestDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.WebhookEventRequestDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventTypeEnum;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.InvalidExitException;
-import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.InvalidRequestException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.ParkingSpotNotFoundException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.VehicleNotFoundException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.Garage;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingEvent;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.ParkingSpot;
-import com.Estapar.EstaparParkingSystem.parkingSystem.domain.model.Revenue;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.GarageRepository;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingEventRepository;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.repository.ParkingSpotRepository;
@@ -31,7 +28,6 @@ public class WebhookExitService {
     private final ParkingEventRepository parkingEventRepository;
     private final ParkingSpotRepository parkingSpotRepository;
     private final GarageRepository garageRepository;
-    private final RevenueService revenueService;
 
     public void handleExit(WebhookEventRequestDTO requestDTO) {
         log.info("[starts] WebhookExitService - handleExit()");
@@ -53,6 +49,7 @@ public class WebhookExitService {
 
         parkingEvent.setExitTime(requestDTO.exitTime());
         parkingEvent.setEventType(EventTypeEnum.EXIT);
+        log.info("Vehicle entered at {} and exited at: {}", parkingEvent.getEntryTime(), parkingEvent.getExitTime());
 
         if (parkingEvent.getSector() != null) {
             //Esvazia a vaga
@@ -69,16 +66,6 @@ public class WebhookExitService {
 
             log.info("Final price: {}", finalPrice);
 
-            RevenueRequestDTO revenueRequestDTO = new RevenueRequestDTO(
-                    parkingEvent.getExitTime().toLocalDate(),
-                    parkingEvent.getSector()
-            );
-            BigDecimal amount = revenueService.getRevenueAmount(revenueRequestDTO);
-            Revenue revenue = revenueService.createOrUpdateRevenue(revenueRequestDTO, amount);
-
-            revenueService.save(revenue);
-
-            log.info("Revenue from sector {} saved. Amount: {}", revenue.getSector(), revenue.getAmount());
             log.info("Garage {} occupancy decremented: {} of {}", garage.getSector(), garage.getCurrentOccupancy(), garage.getMaxCapacity());
         }
         parkingEventRepository.save(parkingEvent);
@@ -87,22 +74,23 @@ public class WebhookExitService {
         log.info("[ends] WebhookExitService - handleExit()");
     }
 
-    private @NonNull BigDecimal calculateParkingFee(ParkingEvent parkingEvent, Garage garage) {
-        BigDecimal price = BigDecimal.ZERO;
-
-        long minutes = Duration.between(
-                parkingEvent.getEntryTime(),
-                parkingEvent.getExitTime()
+    private @NonNull BigDecimal calculateParkingFee(ParkingEvent event, Garage garage) {
+        long minutesParked = Duration.between(
+                event.getEntryTime(),
+                event.getExitTime()
         ).toMinutes();
+        log.info("Minutes parked: {}", minutesParked);
 
-        if (minutes >= 31) {
-
-            long hoursCharged = (long) Math.ceil(minutes / 60.0);
-
-            price = garage.getBasePrice()
-                    .multiply(BigDecimal.valueOf(hoursCharged))
-                    .setScale(2, RoundingMode.HALF_UP);
+        if (minutesParked <= 0) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
-        return price;
+        if (minutesParked <= 30) {
+            return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        long hoursCharged = (long) Math.ceil(minutesParked / 60.0);
+        return garage.getBasePrice()
+                .multiply(BigDecimal.valueOf(hoursCharged))
+                .setScale(2, RoundingMode.HALF_UP);
     }
 }
