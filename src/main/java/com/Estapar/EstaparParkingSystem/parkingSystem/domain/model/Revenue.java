@@ -52,6 +52,9 @@ public class Revenue {
     private LocalDateTime updatedAt;
 
     public Revenue(String sector, LocalDate date, BigDecimal amount) {
+        this.sector = sector;
+        this.date = date;
+        this.amount = amount;
     }
 
     //Métodos
