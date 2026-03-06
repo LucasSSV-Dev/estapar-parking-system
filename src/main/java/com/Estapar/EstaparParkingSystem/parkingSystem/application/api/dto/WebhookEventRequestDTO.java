@@ -8,11 +8,11 @@ import java.time.LocalDateTime;
 
 public record WebhookEventRequestDTO(
         @JsonProperty("license_plate")
-        @NotNull
+        @NotNull(message = "License plate cannot be null")
         String licensePlate,
 
         @JsonProperty("event_type")
-        @NotNull
+        @NotNull(message = "Event Type cannot be null")
         EventTypeEnum eventType,
 
         @JsonProperty("entry_time")
