@@ -3,7 +3,7 @@ package com.Estapar.EstaparParkingSystem.parkingSystem.application.service;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.RevenueRequestDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.application.api.dto.WebhookEventRequestDTO;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.enums.EventTypeEnum;
-import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.GarageNotFoundException;
+import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.InvalidExitException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.InvalidRequestException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.ParkingSpotNotFoundException;
 import com.Estapar.EstaparParkingSystem.parkingSystem.domain.exception.VehicleNotFoundException;
@@ -37,68 +37,57 @@ public class WebhookExitService {
         log.info("[starts] WebhookExitService - handleExit()");
 
         if (requestDTO.exitTime() == null) {
-            throw new InvalidRequestException("Exit time is required for EXIT event");
+            throw new InvalidExitException("Exit time is required for EXIT event");
         }
 
+        //Encontra o carro.
         ParkingEvent parkingEvent = parkingEventRepository
                 .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(requestDTO.licensePlate())
                 .orElseThrow(() -> new VehicleNotFoundException(requestDTO.licensePlate()));
+        //Encontra a vaga.
+        ParkingSpot spot = parkingSpotRepository
+                .findByCurrentLicensePlate(requestDTO.licensePlate())
+                .orElseThrow(() -> new ParkingSpotNotFoundException("Parking spot not found"));
+        //Encontra a garagem.
+        Garage garage = spot.getGarage();
 
         parkingEvent.setExitTime(requestDTO.exitTime());
         parkingEvent.setEventType(EventTypeEnum.EXIT);
 
-
         if (parkingEvent.getSector() != null) {
-            BigDecimal finalPrice = calculateParkingFee(parkingEvent);
+            //Esvazia a vaga
+            spot.setOccupied(false);
+            spot.setCurrentLicensePlate(null);
+            log.info("Plate {} exited from parking spot {} from sector {} ", parkingEvent.getLicensePlate(), spot.getId(), spot.getSector());
+
+            //Diminui a currentOccupancy da garagem
+            garage.decrementOccupancy();
+
+            //Calcula o valor pago na saída
+            BigDecimal finalPrice = calculateParkingFee(parkingEvent, garage);
             parkingEvent.setPaidPrice(finalPrice);
 
-            parkingEventRepository.save(parkingEvent);
-
             log.info("Final price: {}", finalPrice);
-            log.info("Plate Exited: {}", parkingEvent.getLicensePlate());
 
             RevenueRequestDTO revenueRequestDTO = new RevenueRequestDTO(
                     parkingEvent.getExitTime().toLocalDate(),
                     parkingEvent.getSector()
             );
-
             BigDecimal amount = revenueService.getRevenueAmount(revenueRequestDTO);
             Revenue revenue = revenueService.createOrUpdateRevenue(revenueRequestDTO, amount);
-            revenueService.saveRevenue(revenue);
 
+            revenueService.save(revenue);
 
             log.info("Revenue from sector {} saved. Amount: {}", revenue.getSector(), revenue.getAmount());
-
-            ParkingSpot spot = parkingSpotRepository
-                    .findByCurrentLicensePlate(requestDTO.licensePlate())
-                    .orElseThrow(() -> new ParkingSpotNotFoundException("Parking spot not found"));
-
-            spot.setOccupied(false);
-            spot.setCurrentLicensePlate(null);
-
-            parkingSpotRepository.save(spot);
-
-            log.info("Parking spot released: {}", spot.getId());
-
-            Garage garage = spot.getGarage();
-
-            if (garage == null) {
-                garage = garageRepository
-                        .findBySector(spot.getSector())
-                        .orElseThrow(() -> new GarageNotFoundException(requestDTO.licensePlate()));
-                spot.setGarage(garage);
-            }
-
-            garage.decrementOccupancy();
-            garageRepository.save(garage);
             log.info("Garage {} occupancy decremented: {} of {}", garage.getSector(), garage.getCurrentOccupancy(), garage.getMaxCapacity());
         }
-
+        parkingEventRepository.save(parkingEvent);
+        parkingSpotRepository.save(spot);
+        garageRepository.save(garage);
         log.info("[ends] WebhookExitService - handleExit()");
     }
 
-    private @NonNull BigDecimal calculateParkingFee(ParkingEvent parkingEvent) {
-
+    private @NonNull BigDecimal calculateParkingFee(ParkingEvent parkingEvent, Garage garage) {
         BigDecimal price = BigDecimal.ZERO;
 
         long minutes = Duration.between(
@@ -110,15 +99,10 @@ public class WebhookExitService {
 
             long hoursCharged = (long) Math.ceil(minutes / 60.0);
 
-            Garage garage = garageRepository
-                    .findBySector(parkingEvent.getSector())
-                    .orElseThrow(() -> new GarageNotFoundException("Garage not found"));
-
             price = garage.getBasePrice()
                     .multiply(BigDecimal.valueOf(hoursCharged))
                     .setScale(2, RoundingMode.HALF_UP);
         }
-
         return price;
     }
 }

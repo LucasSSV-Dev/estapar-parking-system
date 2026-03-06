@@ -13,7 +13,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -36,13 +35,13 @@ public class RevenueService {
         Revenue revenue = createOrUpdateRevenue(revenueRequestDTO, amount);
 
         //Salva no banco de dados
-        saveRevenue(revenue);
+        save(revenue);
 
         log.info("[ends] RevenueService - calculateRevenue()\n");
         return revenue.toResponseDTO();
     }
 
-    protected void saveRevenue(Revenue revenue) {
+    protected void save(Revenue revenue) {
         revenueRepository.save(revenue);
     }
 
@@ -53,6 +52,8 @@ public class RevenueService {
         );
         if (revenueOpt.isPresent()) {
             Revenue revenue = revenueOpt.get();
+            revenue.setSector(dto.sector());
+            revenue.setDate(dto.date());
             revenue.setAmount(amount);
             return revenue;
         }
@@ -61,18 +62,14 @@ public class RevenueService {
 
     protected BigDecimal getRevenueAmount(RevenueRequestDTO revenueRequestDTO) {
         IntervalDTO interval = getDateStartAndEnd(revenueRequestDTO);
-        Optional<BigDecimal> amountOpt =  parkingEventRepository
+        return parkingEventRepository
                 .sumRevenueByDateAndSectorAndEventType(
                         interval.start(),
                         interval.end(),
                         revenueRequestDTO.sector(),
                         EventTypeEnum.EXIT
                 );
-        if (amountOpt.isPresent()) {
-            return amountOpt.get().setScale(2, RoundingMode.DOWN);
         }
-        return BigDecimal.ZERO.setScale(2, RoundingMode.DOWN);
-    }
 
     private IntervalDTO getDateStartAndEnd(RevenueRequestDTO dto) {
         LocalDateTime start = dto.date().atStartOfDay();
