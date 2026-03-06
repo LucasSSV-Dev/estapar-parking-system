@@ -51,7 +51,6 @@ public class Revenue {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-
     public Revenue(String sector, LocalDate date, BigDecimal amount) {
     }
 
