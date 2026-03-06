@@ -118,4 +118,19 @@ class GarageImportServiceTest {
         verify(parkingSpotRepository, never()).saveAll(anyList());
     }
 
+    @Test
+    @DisplayName("Should throw exception when API call fails")
+    void shouldThrowExceptionWhenApiFails() {
+
+        ReflectionTestUtils.setField(garageImportService, "garageUrl", "http://fake-url");
+
+        when(restClient.get()).thenThrow(new GarageConfigNotReceivedException("Garage config not received"));
+
+        assertThrows(GarageConfigNotReceivedException.class,
+                () -> garageImportService.importGarage());
+
+        verify(garageRepository, never()).saveAll(anyList());
+        verify(parkingSpotRepository, never()).saveAll(anyList());
+    }
+
 }
