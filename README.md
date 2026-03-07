@@ -2,6 +2,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.4.5-6DB33F?logo=springboot)
 ![Spring Data JPA](https://img.shields.io/badge/Spring_Data_JPA-Hibernate-59666C)
 ![JUnit](https://img.shields.io/badge/JUnit-5-25A162?logo=junit5)
+![Mockito](https://img.shields.io/badge/Mockito-Testing-8A4182)
 ![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?logo=mysql)
 ![Docker](https://img.shields.io/badge/Docker-Container-2496ED?logo=docker)
 ![Maven](https://img.shields.io/badge/Build-Maven-C71A36?logo=apachemaven)
