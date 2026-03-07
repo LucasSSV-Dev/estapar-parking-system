@@ -461,5 +461,3 @@ GitHub
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![GitHub last commit](https://img.shields.io/github/last-commit/LucasSSV-Dev/estapar-parking-system)
 ![GitHub repo size](https://img.shields.io/github/repo-size/LucasSSV-Dev/estapar-parking-system)
-Se quiser, eu também posso te mostrar **uma coisa que quase ninguém faz em desafio técnico**, mas que **aumenta muito a chance de impressionar avaliador backend em menos de 10 segundos** quando ele abre o GitHub.
-```
