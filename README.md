@@ -16,8 +16,6 @@ O sistema recebe eventos de um simulador externo via **webhook**, processa regra
 
 ---
 
-# Desafio Técnico
-
 O objetivo do desafio é construir um backend capaz de:
 
 - Gerenciar vagas de estacionamento
@@ -341,6 +339,41 @@ Principais entidades:
 * `Garage`
 * `ParkingSpot`
 * `ParkingEvent`
+
+## Subindo o Banco de Dados com Docker
+
+A aplicação utiliza **MySQL** e espera que as credenciais do banco sejam fornecidas
+através das variáveis de ambiente `MYSQL_USERNAME` e `MYSQL_PASSWORD`.
+
+Para subir rapidamente um banco de dados local usando **Docker**, execute:
+
+```bash
+docker run -d \
+  --name estapar_mysql \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=root \
+  -e MYSQL_DATABASE=estaparparkingsystem \
+  -e MYSQL_USER=estapar \
+  -e MYSQL_PASSWORD=estapar \
+  mysql:8
+  ```
+
+Depois defina as variáveis de ambiente usadas pela aplicação:
+
+export MYSQL_USERNAME=estapar
+export MYSQL_PASSWORD=estapar
+
+Em Windows (PowerShell):
+
+$env:MYSQL_USERNAME="estapar"
+$env:MYSQL_PASSWORD="estapar"
+
+A aplicação se conectará ao banco utilizando a seguinte configuração:
+
+spring.datasource.url=jdbc:mysql://localhost:3306/estaparparkingsystem
+
+As tabelas são criadas automaticamente pelo Hibernate ao iniciar a aplicação
+(spring.jpa.hibernate.ddl-auto=update).
 
 ---
 
