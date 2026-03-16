@@ -8,6 +8,7 @@ import java.util.Optional;
 
 @Repository
 public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, Long> {
+
     Optional<ParkingSpot> findByLatitudeAndLongitude(double latitude, double longitude);
 
     Optional<ParkingSpot> findByCurrentLicensePlate(String plate);

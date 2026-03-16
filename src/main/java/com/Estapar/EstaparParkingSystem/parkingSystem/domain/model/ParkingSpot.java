@@ -13,7 +13,6 @@ import lombok.Data;
 
 @Entity
 @Data
-//Evita que eu cadastre uma vaga que tenha a mesma combinação dos 3)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"sector", "latitude", "longitude"}))
 public class ParkingSpot {
     @Id
@@ -32,7 +31,7 @@ public class ParkingSpot {
     @Column(nullable = false)
     private boolean occupied;
 
-    @Column(name = "current_license_plate")// É só o que preciso mesmo xD
+    @Column(name = "current_license_plate")
     private String currentLicensePlate;
 
     @ManyToOne

@@ -24,6 +24,6 @@ public class WebhookController {
         log.info("[starts] WebhookController - handleEvent()");
         webhookService.process(eventRequestDTO);
         log.info("[ends] WebhookController - handleEvent()\n");
-        return ResponseEntity.ok().build(); //Famoso 200 OK
+        return ResponseEntity.ok().build();
     }
 }

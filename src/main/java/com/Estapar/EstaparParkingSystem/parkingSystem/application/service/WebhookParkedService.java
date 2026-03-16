@@ -31,29 +31,25 @@ public class WebhookParkedService {
             throw new InvalidRequestException("latitude and longitude are required for PARKED event");
         }
 
-        //Procura o carro.
         ParkingEvent parkingEvent = parkingEventRepository
-                .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(requestDTO.licensePlate())
+                .findTopByLicensePlateAndExitTimeIsNull(requestDTO.licensePlate())
                 .orElseThrow(() -> new VehicleNotFoundException(requestDTO.licensePlate()));
 
-        //Procura uma vaga.
         ParkingSpot spot = parkingSpotRepository
                 .findByLatitudeAndLongitude(requestDTO.lat(), requestDTO.lng())
                 .orElseThrow(() -> new ParkingSpotNotFoundException("Parking spot not found"));
 
-        //Se estiver ocupada
         if (spot.isOccupied()) {
             throw new OccupiedParkingSpotException("Parking spot already occupied");
         }
 
-        //Ocupa a vaga
         spot.setOccupied(true);
         spot.setCurrentLicensePlate(parkingEvent.getLicensePlate());
-        //Preenche os dados do evento
+
         parkingEvent.setSector(spot.getSector());
         parkingEvent.setEventType(EventTypeEnum.PARKED);
         parkingEvent.setDynamicPrice(spot.getGarage().calculateDynamicPrice());
-        //Aumenta a currentOccupancy da garagem
+
         spot.getGarage().incrementOccupancy();
 
 

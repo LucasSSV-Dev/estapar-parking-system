@@ -103,7 +103,7 @@ class WebhookExitServiceTest {
 
         // Arrange
         when(parkingEventRepository
-                .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(anyString()))
+                .findTopByLicensePlateAndExitTimeIsNull(anyString()))
                 .thenReturn(Optional.empty());
 
         // Assert
@@ -117,7 +117,7 @@ class WebhookExitServiceTest {
 
         // Arrange
         when(parkingEventRepository
-                .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(anyString()))
+                .findTopByLicensePlateAndExitTimeIsNull(anyString()))
                 .thenReturn(Optional.of(parkingEvent));
 
         when(parkingSpotRepository
@@ -135,7 +135,7 @@ class WebhookExitServiceTest {
 
         // Arrange
         when(parkingEventRepository
-                .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(anyString()))
+                .findTopByLicensePlateAndExitTimeIsNull(anyString()))
                 .thenReturn(Optional.of(parkingEvent));
 
         when(parkingSpotRepository
@@ -169,7 +169,7 @@ class WebhookExitServiceTest {
         parkingEvent.setEntryTime(LocalDateTime.now().minusMinutes(20));
 
         when(parkingEventRepository
-                .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(anyString()))
+                .findTopByLicensePlateAndExitTimeIsNull(anyString()))
                 .thenReturn(Optional.of(parkingEvent));
 
         when(parkingSpotRepository
@@ -191,7 +191,7 @@ class WebhookExitServiceTest {
         parkingEvent.setEntryTime(LocalDateTime.now().minusHours(2).minusMinutes(10));
 
         when(parkingEventRepository
-                .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(anyString()))
+                .findTopByLicensePlateAndExitTimeIsNull(anyString()))
                 .thenReturn(Optional.of(parkingEvent));
 
         when(parkingSpotRepository

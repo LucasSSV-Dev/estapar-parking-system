@@ -71,7 +71,7 @@ public class GarageImportService {
                 .toList();
 
         garageRepository.saveAll(entities);
-        garageRepository.flush();//Para garantir que a entity exista no banco de dados, se não daria erro abaixo
+        garageRepository.flush();
     }
 
     private void saveSpots(List<ParkingSpotConfigDTO> spots) {
@@ -90,7 +90,7 @@ public class GarageImportService {
                     if (spot.getId() == null) {
                         spot.setOccupied(false);
                     }
-                    spot.setGarage(getGarage(spotConfigDTO)); //Ia dar erro aqui
+                    spot.setGarage(getGarage(spotConfigDTO));
 
                     return spot;
                 })
@@ -99,11 +99,11 @@ public class GarageImportService {
         parkingSpotRepository.saveAll(entities);
     }
 
-    private Map<String, Garage> getGarageMap() { //Tava fazendo a busca toda vez que ia no banco de dados
+    private Map<String, Garage> getGarageMap() {
         return garageRepository
                 .findAll()
                 .stream()
-                .collect(Collectors.toMap(Garage::getSector, garage -> garage)); //Melhor guardar ela e ver uma vez só :D
+                .collect(Collectors.toMap(Garage::getSector, garage -> garage));
     }
 
     private Garage getGarage(ParkingSpotConfigDTO parkingSpotConfigDTO) {

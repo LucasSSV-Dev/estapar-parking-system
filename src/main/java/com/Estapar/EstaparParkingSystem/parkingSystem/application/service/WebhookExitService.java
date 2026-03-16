@@ -36,15 +36,14 @@ public class WebhookExitService {
             throw new InvalidExitException("Exit time is required for EXIT event");
         }
 
-        //Encontra o carro.
         ParkingEvent parkingEvent = parkingEventRepository
-                .findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(requestDTO.licensePlate())
+                .findTopByLicensePlateAndExitTimeIsNull(requestDTO.licensePlate())
                 .orElseThrow(() -> new VehicleNotFoundException(requestDTO.licensePlate()));
-        //Encontra a vaga.
+
         ParkingSpot spot = parkingSpotRepository
                 .findByCurrentLicensePlate(requestDTO.licensePlate())
                 .orElseThrow(() -> new ParkingSpotNotFoundException("Parking spot not found"));
-        //Encontra a garagem.
+
         Garage garage = spot.getGarage();
 
         parkingEvent.setExitTime(requestDTO.exitTime());
@@ -52,15 +51,12 @@ public class WebhookExitService {
         log.info("Vehicle entered at {} and exited at: {}", parkingEvent.getEntryTime(), parkingEvent.getExitTime());
 
         if (parkingEvent.getSector() != null) {
-            //Esvazia a vaga
             spot.setOccupied(false);
             spot.setCurrentLicensePlate(null);
             log.info("Plate {} exited from parking spot {} from sector {} ", parkingEvent.getLicensePlate(), spot.getId(), spot.getSector());
 
-            //Diminui a currentOccupancy da garagem
             garage.decrementOccupancy();
 
-            //Calcula o valor pago na saída
             BigDecimal finalPrice = calculateParkingFee(parkingEvent, garage);
             parkingEvent.setPaidPrice(finalPrice);
 

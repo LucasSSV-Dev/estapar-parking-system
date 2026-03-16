@@ -27,16 +27,11 @@ public class RevenueService {
     @Transactional
     public RevenueResponseDTO calculateRevenue(RevenueRequestDTO revenueRequestDTO) {
         log.info("[starts] RevenueService - calculateRevenue()");
-
-        //Calculo no banco de dados
         BigDecimal amount = calculateRevenueAmount(revenueRequestDTO);
 
-        //Vejo se já foi realizado o cálculo para essa data e setor pra não criar múltiplas receitas do mesmo período
         Revenue revenue = createOrUpdateRevenue(revenueRequestDTO, amount);
 
-        //Salva no banco de dados
         save(revenue);
-
         log.info("[ends] RevenueService - calculateRevenue()\n");
         return revenue.toResponseDTO();
     }

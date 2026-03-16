@@ -89,7 +89,7 @@ class WebhookParkedServiceTest {
     @DisplayName("Should throw VehicleNotFoundException when parking event is not found")
     void WebhookParkedServiceTest_handleParked_case02() {
         // Arrange
-        when(parkingEventRepository.findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(anyString()))
+        when(parkingEventRepository.findTopByLicensePlateAndExitTimeIsNull(anyString()))
                 .thenReturn(Optional.empty());
 
         // Act + Assert
@@ -100,7 +100,7 @@ class WebhookParkedServiceTest {
     @DisplayName("Should throw ParkingSpotNotFoundException when parking spot is not found")
     void WebhookParkedServiceTest_handleParked_case03() {
         // Arrange
-        when(parkingEventRepository.findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(anyString()))
+        when(parkingEventRepository.findTopByLicensePlateAndExitTimeIsNull(anyString()))
                 .thenReturn(Optional.of(parkingEvent));
 
         when(parkingSpotRepository.findByLatitudeAndLongitude(anyDouble(), anyDouble()))
@@ -116,7 +116,7 @@ class WebhookParkedServiceTest {
         // Arrange
         spot.setOccupied(true);
 
-        when(parkingEventRepository.findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(anyString()))
+        when(parkingEventRepository.findTopByLicensePlateAndExitTimeIsNull(anyString()))
                 .thenReturn(Optional.of(parkingEvent));
 
         when(parkingSpotRepository.findByLatitudeAndLongitude(anyDouble(), anyDouble()))
@@ -130,7 +130,7 @@ class WebhookParkedServiceTest {
     @DisplayName("Should park vehicle successfully and update parking event, spot and garage")
     void WebhookParkedServiceTest_handleParked_case05() {
         // Arrange
-        when(parkingEventRepository.findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(anyString()))
+        when(parkingEventRepository.findTopByLicensePlateAndExitTimeIsNull(anyString()))
                 .thenReturn(Optional.of(parkingEvent));
 
         when(parkingSpotRepository.findByLatitudeAndLongitude(anyDouble(), anyDouble()))

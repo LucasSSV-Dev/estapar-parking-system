@@ -13,7 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface ParkingEventRepository extends JpaRepository<ParkingEvent, Long> {
-    Optional<ParkingEvent> findTopByLicensePlateAndExitTimeIsNullOrderByEntryTimeDesc(String licensePlate);
+
+    Optional<ParkingEvent> findTopByLicensePlateAndExitTimeIsNull(String licensePlate);
 
     @Query("""
         SELECT COALESCE(SUM(e.paidPrice), 0.0)

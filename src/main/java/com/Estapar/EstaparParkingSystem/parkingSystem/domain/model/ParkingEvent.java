@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Table(name = "parking_event")
 public class ParkingEvent {
 
-    @Id //Ia botar UUID, mas vi que a performance do IDENTITY é melhor
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

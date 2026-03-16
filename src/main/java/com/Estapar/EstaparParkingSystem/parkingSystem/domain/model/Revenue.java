@@ -57,7 +57,6 @@ public class Revenue {
         this.amount = amount;
     }
 
-    //Métodos
     public RevenueResponseDTO toResponseDTO(){
         return new RevenueResponseDTO(
                 this.amount,
