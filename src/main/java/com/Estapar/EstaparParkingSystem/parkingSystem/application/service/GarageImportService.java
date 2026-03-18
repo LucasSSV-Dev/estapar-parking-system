@@ -41,6 +41,7 @@ public class GarageImportService {
                         .uri(garageUrl)
                         .retrieve()
                         .body(GarageConfigRequestDTO.class);
+
         if (requestDTO == null) {
             log.info("[error] GarageImportService - importGarage()\n");
             throw new GarageConfigNotReceivedException("Garage config not received");
