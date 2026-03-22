@@ -30,7 +30,7 @@ public class WebhookParkedService {
         if (requestDTO.lat() == null || requestDTO.lng() == null) {
             throw new InvalidRequestException("latitude and longitude are required for PARKED event");
         }
-
+ 
         ParkingEvent parkingEvent = parkingEventRepository
                 .findTopByLicensePlateAndExitTimeIsNull(requestDTO.licensePlate())
                 .orElseThrow(() -> new VehicleNotFoundException(requestDTO.licensePlate()));

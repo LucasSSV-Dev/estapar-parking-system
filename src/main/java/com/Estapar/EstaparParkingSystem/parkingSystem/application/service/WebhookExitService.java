@@ -87,6 +87,7 @@ public class WebhookExitService {
         long hoursCharged = (long) Math.ceil(minutesParked / 60.0);
         return garage.getBasePrice()
                 .multiply(BigDecimal.valueOf(hoursCharged))
+                .multiply(event.getDynamicPrice())
                 .setScale(2, RoundingMode.HALF_UP);
     }
 }
