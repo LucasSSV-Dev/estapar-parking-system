@@ -15,7 +15,7 @@ class GarageTest {
 
         Garage garage = new Garage();
         garage.setMaxCapacity(100);
-        garage.setCurrentOccupancy(10); // 10%
+        garage.setCurrentOccupancy(10);
 
         BigDecimal result = garage.calculateDynamicPrice();
 
@@ -28,7 +28,7 @@ class GarageTest {
 
         Garage garage = new Garage();
         garage.setMaxCapacity(100);
-        garage.setCurrentOccupancy(40); // 40%
+        garage.setCurrentOccupancy(40);
 
         BigDecimal result = garage.calculateDynamicPrice();
 
@@ -41,7 +41,7 @@ class GarageTest {
 
         Garage garage = new Garage();
         garage.setMaxCapacity(100);
-        garage.setCurrentOccupancy(60); // 60%
+        garage.setCurrentOccupancy(60);
 
         BigDecimal result = garage.calculateDynamicPrice();
 
