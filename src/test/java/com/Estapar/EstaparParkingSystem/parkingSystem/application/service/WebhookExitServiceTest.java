@@ -76,6 +76,7 @@ class WebhookExitServiceTest {
         parkingEvent.setLicensePlate("ABC1234");
         parkingEvent.setEntryTime(LocalDateTime.now().minusHours(2));
         parkingEvent.setSector("A");
+        parkingEvent.setDynamicPrice(new BigDecimal("1.00"));
     }
 
     @Test
@@ -203,5 +204,28 @@ class WebhookExitServiceTest {
 
         // Assert
         assertEquals(new BigDecimal("30.00"), parkingEvent.getPaidPrice());
+    }
+
+    @Test
+    @DisplayName("Should apply dynamic price factor to parking fee calculation")
+    void WebhookExitServiceTest_handleExit_case07() {
+
+        // Arrange
+        parkingEvent.setEntryTime(LocalDateTime.now().minusHours(2).minusMinutes(10));
+        parkingEvent.setDynamicPrice(new BigDecimal("1.25"));
+
+        when(parkingEventRepository
+                .findTopByLicensePlateAndExitTimeIsNull(anyString()))
+                .thenReturn(Optional.of(parkingEvent));
+
+        when(parkingSpotRepository
+                .findByCurrentLicensePlate(anyString()))
+                .thenReturn(Optional.of(spot));
+
+        // Act
+        service.handleExit(requestDTO);
+
+        // Assert
+        assertEquals(new BigDecimal("37.50"), parkingEvent.getPaidPrice());
     }
 }
